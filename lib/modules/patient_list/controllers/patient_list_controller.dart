@@ -5,9 +5,12 @@ import '../../../app/routes/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/models/patient_model.dart';
 import '../../../data/repositories/patient_repository.dart';
+import '../../shell/controllers/selected_patient_controller.dart';
 
 class PatientListController extends GetxController {
   final PatientRepository _repository = Get.find<PatientRepository>();
+  final SelectedPatientController selectedPatient =
+      Get.find<SelectedPatientController>();
 
   final searchController = TextEditingController();
   final searchQuery = ''.obs;
@@ -19,10 +22,32 @@ class PatientListController extends GetxController {
   final total = 0.obs;
   final perPage = 10;
 
+  /// Filters: All / Male / Female / Other
+  final genderFilter = 'All'.obs;
+
+  /// Filters: All / Active / Inactive
+  final statusFilter = 'All'.obs;
+
   @override
   void onInit() {
     super.onInit();
     loadPatients();
+  }
+
+  List<PatientModel> get filteredPatients {
+    var list = patients.toList();
+    if (genderFilter.value != 'All') {
+      list = list
+          .where((p) =>
+              p.gender.toLowerCase() == genderFilter.value.toLowerCase())
+          .toList();
+    }
+    if (statusFilter.value == 'Active') {
+      list = list.where((p) => p.isActive).toList();
+    } else if (statusFilter.value == 'Inactive') {
+      list = list.where((p) => !p.isActive).toList();
+    }
+    return list;
   }
 
   Future<void> loadPatients({bool refresh = false}) async {
@@ -75,6 +100,10 @@ class PatientListController extends GetxController {
     loadPatients();
   }
 
+  void setGenderFilter(String value) => genderFilter.value = value;
+
+  void setStatusFilter(String value) => statusFilter.value = value;
+
   void nextPage() {
     if (currentPage.value < lastPage.value) {
       currentPage.value++;
@@ -95,14 +124,30 @@ class PatientListController extends GetxController {
     });
   }
 
+  Future<void> selectPatient(PatientModel patient) async {
+    await selectedPatient.select(patient);
+    Get.snackbar(
+      'Patient selected',
+      '${patient.name} is now active across all screens.',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: AppColors.successBg,
+      colorText: AppColors.success,
+      duration: const Duration(seconds: 2),
+      margin: const EdgeInsets.all(12),
+    );
+  }
+
   Future<void> viewPatient(PatientModel patient) async {
+    await selectPatient(patient);
+
     PatientModel details = patient;
     try {
       final fetched = await _repository.getPatientByUhid(patient.uhid);
-      if (fetched != null) details = fetched;
-    } catch (_) {
-      // Fall back to list payload if detail call fails.
-    }
+      if (fetched != null) {
+        details = fetched;
+        await selectedPatient.select(details);
+      }
+    } catch (_) {}
 
     Get.dialog(
       AlertDialog(
@@ -163,7 +208,8 @@ class PatientListController extends GetxController {
     );
   }
 
-  void editPatient(PatientModel patient) {
+  Future<void> editPatient(PatientModel patient) async {
+    await selectPatient(patient);
     Get.toNamed(
       AppRoutes.patientEdit,
       arguments: patient,
@@ -172,7 +218,8 @@ class PatientListController extends GetxController {
     });
   }
 
-  void continuePatient(PatientModel patient) {
+  Future<void> continuePatient(PatientModel patient) async {
+    await selectPatient(patient);
     Get.toNamed(
       AppRoutes.uploadDocuments,
       arguments: patient,
@@ -187,7 +234,10 @@ class PatientListController extends GetxController {
         title: const Text('Delete patient'),
         content: Text('Delete ${patient.name}? This cannot be undone.'),
         actions: [
-          TextButton(onPressed: () => Get.back(result: false), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Get.back(result: false),
+            child: const Text('Cancel'),
+          ),
           TextButton(
             onPressed: () => Get.back(result: true),
             style: TextButton.styleFrom(foregroundColor: AppColors.error),
@@ -201,6 +251,9 @@ class PatientListController extends GetxController {
 
     try {
       await _repository.deletePatient(patient.uhid);
+      if (selectedPatient.isSelected(patient)) {
+        await selectedPatient.clear();
+      }
       Get.snackbar(
         'Deleted',
         '${patient.name} has been removed.',

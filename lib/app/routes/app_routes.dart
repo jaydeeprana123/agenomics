@@ -4,4 +4,5 @@ abstract class AppRoutes {
   static const String patientRegistration = '/patients/register';
   static const String patientEdit = '/patients/edit';
   static const String uploadDocuments = '/patients/documents';
+  static const String physicianHis = '/physician-his';
 }

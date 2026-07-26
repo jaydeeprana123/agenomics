@@ -7,6 +7,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../data/models/document_model.dart';
 import '../../../data/models/patient_model.dart';
 import '../../../data/repositories/document_repository.dart';
+import '../../shell/controllers/selected_patient_controller.dart';
 
 class UploadDocumentsController extends GetxController {
   final DocumentRepository _repository = Get.find<DocumentRepository>();
@@ -27,13 +28,18 @@ class UploadDocumentsController extends GetxController {
   void onInit() {
     super.onInit();
     final args = Get.arguments;
-    if (args is! PatientModel) {
+    if (args is PatientModel) {
+      patient = args;
+    } else if (Get.isRegistered<SelectedPatientController>()) {
+      patient = Get.find<SelectedPatientController>().selected.value;
+    }
+
+    if (patient == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Get.offAllNamed(AppRoutes.patientList);
       });
       return;
     }
-    patient = args;
     loadDocuments();
   }
 

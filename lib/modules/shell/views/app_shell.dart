@@ -6,6 +6,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../patient_list/controllers/patient_list_controller.dart';
+import '../controllers/selected_patient_controller.dart';
 import '../controllers/shell_controller.dart';
 
 class AppShell extends StatelessWidget {
@@ -69,13 +70,21 @@ class _TopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = Get.find<AuthRepository>().getCurrentUser();
+    final selectedPatient = Get.find<SelectedPatientController>();
 
     return Container(
-      height: 52,
+      height: 54,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: const BoxDecoration(
         color: AppColors.surface,
         border: Border(bottom: BorderSide(color: AppColors.border)),
+        boxShadow: [
+          BoxShadow(
+            color: Color(0x0F0F172A),
+            blurRadius: 2,
+            offset: Offset(0, 1),
+          ),
+        ],
       ),
       child: Row(
         children: [
@@ -90,37 +99,131 @@ class _TopBar extends StatelessWidget {
               title,
               style: const TextStyle(
                 fontFamily: 'Mulish',
-                fontSize: 13,
-                fontWeight: FontWeight.w800,
-                letterSpacing: -0.3,
-                color: AppColors.text,
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -0.2,
+                color: AppColors.slate,
               ),
               overflow: TextOverflow.ellipsis,
             ),
           ),
+          Obx(() {
+            final patient = selectedPatient.selected.value;
+            if (patient == null) {
+              return InkWell(
+                onTap: () {
+                  if (Get.currentRoute != AppRoutes.patientList) {
+                    Get.until(
+                      (route) =>
+                          route.settings.name == AppRoutes.patientList ||
+                          route.isFirst,
+                    );
+                    if (Get.currentRoute != AppRoutes.patientList) {
+                      Get.offAllNamed(AppRoutes.patientList);
+                    }
+                  }
+                },
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceLight,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.person_search_outlined,
+                          size: 14, color: AppColors.textSecondary),
+                      SizedBox(width: 6),
+                      Text(
+                        'Select patient',
+                        style: TextStyle(
+                          fontFamily: 'Mulish',
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }
+
+            return InkWell(
+              onTap: () {
+                if (Get.currentRoute == AppRoutes.patientList) return;
+                Get.until(
+                  (route) =>
+                      route.settings.name == AppRoutes.patientList ||
+                      route.isFirst,
+                );
+                if (Get.currentRoute != AppRoutes.patientList) {
+                  Get.offAllNamed(AppRoutes.patientList);
+                }
+              },
+              borderRadius: BorderRadius.circular(20),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryLight,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: AppColors.primaryMid),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.person, size: 14, color: AppColors.primaryDark),
+                    const SizedBox(width: 6),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 160),
+                      child: Text(
+                        patient.name,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontFamily: 'Mulish',
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.primaryDark,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      patient.uhid,
+                      style: const TextStyle(
+                        fontFamily: 'Mulish',
+                        fontSize: 10,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }),
+          const SizedBox(width: 8),
           if (user != null)
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
-                color: AppColors.primaryLight,
+                color: AppColors.surfaceLight,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: AppColors.primaryMid),
+                border: Border.all(color: AppColors.border),
               ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.person_outline, size: 14, color: AppColors.primaryDark),
-                  const SizedBox(width: 6),
-                  Text(
-                    user.name,
-                    style: const TextStyle(
-                      fontFamily: 'Mulish',
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.primaryDark,
-                    ),
-                  ),
-                ],
+              child: Text(
+                user.name,
+                style: const TextStyle(
+                  fontFamily: 'Mulish',
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textSecondary,
+                ),
               ),
             ),
           const SizedBox(width: 8),
@@ -131,19 +234,14 @@ class _TopBar extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: AppColors.successRing),
             ),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  '● Live',
-                  style: TextStyle(
-                    fontFamily: 'Mulish',
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.success,
-                  ),
-                ),
-              ],
+            child: const Text(
+              '● Live',
+              style: TextStyle(
+                fontFamily: 'Mulish',
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                color: AppColors.success,
+              ),
             ),
           ),
         ],
@@ -182,7 +280,7 @@ class _SidebarContent extends StatelessWidget {
                       TextSpan(text: 'A'),
                       TextSpan(
                         text: 'Genomics',
-                        style: TextStyle(color: AppColors.primary),
+                        style: TextStyle(color: AppColors.secondary),
                       ),
                     ],
                   ),
@@ -247,6 +345,31 @@ class _SidebarContent extends StatelessWidget {
                 ),
                 const _NavSection('Workflow'),
                 _NavItem(
+                  icon: Icons.medical_services_outlined,
+                  label: 'Physician / HIS',
+                  route: AppRoutes.physicianHis,
+                  isActive: Get.currentRoute == AppRoutes.physicianHis,
+                  onTap: () {
+                    if (Scaffold.maybeOf(context)?.isDrawerOpen ?? false) {
+                      Navigator.of(context).pop();
+                    }
+                    final selected =
+                        Get.find<SelectedPatientController>().selected.value;
+                    if (selected == null || selected.id.isEmpty) {
+                      Get.snackbar(
+                        'Select a patient',
+                        'Choose a patient from the Patient List first.',
+                        snackPosition: SnackPosition.BOTTOM,
+                        backgroundColor: AppColors.surface,
+                        colorText: AppColors.text,
+                      );
+                      return;
+                    }
+                    if (Get.currentRoute == AppRoutes.physicianHis) return;
+                    Get.toNamed(AppRoutes.physicianHis);
+                  },
+                ),
+                _NavItem(
                   icon: Icons.person_add_alt_1_outlined,
                   label: 'New Patient',
                   route: AppRoutes.patientRegistration,
@@ -288,10 +411,13 @@ class _SidebarContent extends StatelessWidget {
               children: [
                 const _StatusRow(label: 'Claim Engine', ok: true),
                 const _StatusRow(label: 'Document Store', ok: true),
-                const _StatusRow(label: 'Laravel API', ok: false, pending: true),
+                const _StatusRow(label: 'API', ok: true),
                 const SizedBox(height: 10),
                 InkWell(
                   onTap: () async {
+                    if (Get.isRegistered<SelectedPatientController>()) {
+                      await Get.find<SelectedPatientController>().clear();
+                    }
                     await Get.find<AuthRepository>().logout();
                     if (Get.isRegistered<PatientListController>()) {
                       Get.delete<PatientListController>(force: true);
@@ -408,21 +534,15 @@ class _NavItem extends StatelessWidget {
 class _StatusRow extends StatelessWidget {
   final String label;
   final bool ok;
-  final bool pending;
 
   const _StatusRow({
     required this.label,
     this.ok = false,
-    this.pending = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    final color = ok
-        ? const Color(0xFF4ADE80)
-        : pending
-            ? const Color(0xFFFACC15)
-            : const Color(0xFFF87171);
+    final color = ok ? AppColors.accent : const Color(0xFFF87171);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),

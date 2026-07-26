@@ -22,6 +22,12 @@ class ApiEndpoints {
   // Patients
   static const String patients = '/api/v1/patients';
   static String patient(String uhid) => '/api/v1/patients/$uhid';
+  static String engineCheck(String patientId) =>
+      '/api/v1/patients/$patientId/engine-check';
+
+  // Medicines
+  static const String medicines = '/api/v1/medicines';
+  static String medicine(String medicineId) => '/api/v1/medicines/$medicineId';
 
   // Documents (future)
   static String patientDocuments(String patientId) =>
