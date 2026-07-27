@@ -39,7 +39,7 @@ class PatientListView extends GetView<PatientListController> {
                     PageHeader(
                       title: 'Patient Cohort',
                       subtitle:
-                          'Click any patient to load them across every screen. Search and filter the registry below.',
+                          'Click any patient to open their encounters. Search and filter the registry below.',
                       actions: [
                         AppButton(
                           label: 'Refresh',
@@ -140,7 +140,7 @@ class _SelectedBanner extends StatelessWidget {
               SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'No patient selected. Click a row to set the active patient for all screens.',
+                  'No patient selected. Click a row to open Encounters for that patient.',
                   style: TextStyle(
                     fontFamily: 'Mulish',
                     fontSize: 12,
@@ -436,7 +436,7 @@ class _CohortTable extends StatelessWidget {
           return Material(
             color: isSelected ? AppColors.primaryLight : AppColors.surface,
             child: InkWell(
-              onTap: () => controller.selectPatient(p),
+              onTap: () => controller.openPatientEncounters(p),
               child: Container(
                 decoration: BoxDecoration(
                   border: Border(
@@ -610,7 +610,7 @@ class _CohortCards extends StatelessWidget {
         return Material(
           color: isSelected ? AppColors.primaryLight : AppColors.surface,
           child: InkWell(
-            onTap: () => controller.selectPatient(p),
+            onTap: () => controller.openPatientEncounters(p),
             child: Container(
               decoration: BoxDecoration(
                 border: Border(

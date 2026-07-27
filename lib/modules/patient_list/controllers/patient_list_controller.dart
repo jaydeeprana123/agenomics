@@ -137,6 +137,17 @@ class PatientListController extends GetxController {
     );
   }
 
+  /// Row/card tap: select patient and open Encounters for that patient.
+  Future<void> openPatientEncounters(PatientModel patient) async {
+    await selectedPatient.select(patient);
+    if (Get.currentRoute == AppRoutes.encounters) {
+      // Already on encounters — force a reload via re-navigation.
+      Get.offNamed(AppRoutes.encounters);
+      return;
+    }
+    Get.toNamed(AppRoutes.encounters);
+  }
+
   Future<void> viewPatient(PatientModel patient) async {
     await selectPatient(patient);
 

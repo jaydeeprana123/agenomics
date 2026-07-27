@@ -2,8 +2,10 @@ import 'package:get/get.dart';
 
 import '../../data/repositories/auth_repository.dart';
 import '../../data/repositories/document_repository.dart';
+import '../../data/repositories/encounter_repository.dart';
 import '../../data/repositories/medicine_repository.dart';
 import '../../data/repositories/patient_repository.dart';
+import '../../modules/shell/controllers/selected_encounter_controller.dart';
 import '../../modules/shell/controllers/selected_patient_controller.dart';
 
 class InitialBinding extends Bindings {
@@ -13,8 +15,13 @@ class InitialBinding extends Bindings {
     Get.put<PatientRepository>(PatientRepository(), permanent: true);
     Get.put<DocumentRepository>(DocumentRepository(), permanent: true);
     Get.put<MedicineRepository>(MedicineRepository(), permanent: true);
+    Get.put<EncounterRepository>(EncounterRepository(), permanent: true);
     Get.put<SelectedPatientController>(
       SelectedPatientController(),
+      permanent: true,
+    );
+    Get.put<SelectedEncounterController>(
+      SelectedEncounterController(),
       permanent: true,
     );
   }

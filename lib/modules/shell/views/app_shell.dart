@@ -6,6 +6,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../patient_list/controllers/patient_list_controller.dart';
+import '../controllers/selected_encounter_controller.dart';
 import '../controllers/selected_patient_controller.dart';
 import '../controllers/shell_controller.dart';
 
@@ -67,10 +68,39 @@ class _TopBar extends StatelessWidget {
 
   const _TopBar({required this.title, required this.showMenu});
 
+  void _openPatientList() {
+    if (Get.currentRoute == AppRoutes.patientList) return;
+    Get.until(
+      (route) =>
+          route.settings.name == AppRoutes.patientList || route.isFirst,
+    );
+    if (Get.currentRoute != AppRoutes.patientList) {
+      Get.offAllNamed(AppRoutes.patientList);
+    }
+  }
+
+  void _openEncounters() {
+    final selected = Get.find<SelectedPatientController>().selected.value;
+    if (selected == null || selected.id.isEmpty) {
+      Get.snackbar(
+        'Select a patient',
+        'Choose a patient from the Patient List first.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColors.surface,
+        colorText: AppColors.text,
+      );
+      _openPatientList();
+      return;
+    }
+    if (Get.currentRoute == AppRoutes.encounters) return;
+    Get.toNamed(AppRoutes.encounters);
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = Get.find<AuthRepository>().getCurrentUser();
     final selectedPatient = Get.find<SelectedPatientController>();
+    final selectedEncounter = Get.find<SelectedEncounterController>();
 
     return Container(
       height: 54,
@@ -109,20 +139,11 @@ class _TopBar extends StatelessWidget {
           ),
           Obx(() {
             final patient = selectedPatient.selected.value;
+            final encounter = selectedEncounter.selected.value;
+
             if (patient == null) {
               return InkWell(
-                onTap: () {
-                  if (Get.currentRoute != AppRoutes.patientList) {
-                    Get.until(
-                      (route) =>
-                          route.settings.name == AppRoutes.patientList ||
-                          route.isFirst,
-                    );
-                    if (Get.currentRoute != AppRoutes.patientList) {
-                      Get.offAllNamed(AppRoutes.patientList);
-                    }
-                  }
-                },
+                onTap: _openPatientList,
                 borderRadius: BorderRadius.circular(20),
                 child: Container(
                   padding:
@@ -153,58 +174,104 @@ class _TopBar extends StatelessWidget {
               );
             }
 
-            return InkWell(
-              onTap: () {
-                if (Get.currentRoute == AppRoutes.patientList) return;
-                Get.until(
-                  (route) =>
-                      route.settings.name == AppRoutes.patientList ||
-                      route.isFirst,
-                );
-                if (Get.currentRoute != AppRoutes.patientList) {
-                  Get.offAllNamed(AppRoutes.patientList);
-                }
-              },
-              borderRadius: BorderRadius.circular(20),
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                decoration: BoxDecoration(
-                  color: AppColors.primaryLight,
+            return Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                InkWell(
+                  onTap: _openPatientList,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppColors.primaryMid),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.person, size: 14, color: AppColors.primaryDark),
-                    const SizedBox(width: 6),
-                    ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 160),
-                      child: Text(
-                        patient.name,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontFamily: 'Mulish',
-                          fontSize: 11.5,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.primaryDark,
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryLight,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: AppColors.primaryMid),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.person,
+                            size: 14, color: AppColors.primaryDark),
+                        const SizedBox(width: 6),
+                        ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 140),
+                          child: Text(
+                            patient.name,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontFamily: 'Mulish',
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.primaryDark,
+                            ),
+                          ),
                         ),
-                      ),
+                        const SizedBox(width: 6),
+                        Text(
+                          patient.uhid,
+                          style: const TextStyle(
+                            fontFamily: 'Mulish',
+                            fontSize: 10,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 6),
-                    Text(
-                      patient.uhid,
-                      style: const TextStyle(
-                        fontFamily: 'Mulish',
-                        fontSize: 10,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
+                const SizedBox(width: 6),
+                InkWell(
+                  onTap: _openEncounters,
+                  borderRadius: BorderRadius.circular(20),
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: encounter == null
+                          ? AppColors.surfaceLight
+                          : AppColors.infoBg,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: encounter == null
+                            ? AppColors.border
+                            : AppColors.infoRing,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.event_note_outlined,
+                          size: 14,
+                          color: encounter == null
+                              ? AppColors.textSecondary
+                              : AppColors.info,
+                        ),
+                        const SizedBox(width: 6),
+                        ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 140),
+                          child: Text(
+                            encounter == null
+                                ? 'Select visit'
+                                : encounter.displayLabel,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontFamily: 'Mulish',
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w700,
+                              color: encounter == null
+                                  ? AppColors.textSecondary
+                                  : AppColors.info,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             );
           }),
           const SizedBox(width: 8),
@@ -327,10 +394,7 @@ class _SidebarContent extends StatelessWidget {
                   icon: Icons.people_outline,
                   label: 'Patients',
                   route: AppRoutes.patientList,
-                  isActive: Get.currentRoute.startsWith('/patients') &&
-                      !Get.currentRoute.contains('register') &&
-                      !Get.currentRoute.contains('documents') &&
-                      !Get.currentRoute.contains('edit'),
+                  isActive: Get.currentRoute == AppRoutes.patientList,
                   onTap: () {
                     if (Scaffold.maybeOf(context)?.isDrawerOpen ?? false) {
                       Navigator.of(context).pop();
@@ -341,9 +405,37 @@ class _SidebarContent extends StatelessWidget {
                           route.settings.name == AppRoutes.patientList ||
                           route.isFirst,
                     );
+                    if (Get.currentRoute != AppRoutes.patientList) {
+                      Get.offAllNamed(AppRoutes.patientList);
+                    }
                   },
                 ),
                 const _NavSection('Workflow'),
+                _NavItem(
+                  icon: Icons.event_note_outlined,
+                  label: 'Encounters',
+                  route: AppRoutes.encounters,
+                  isActive: Get.currentRoute == AppRoutes.encounters,
+                  onTap: () {
+                    if (Scaffold.maybeOf(context)?.isDrawerOpen ?? false) {
+                      Navigator.of(context).pop();
+                    }
+                    final selected =
+                        Get.find<SelectedPatientController>().selected.value;
+                    if (selected == null || selected.id.isEmpty) {
+                      Get.snackbar(
+                        'Select a patient',
+                        'Choose a patient from the Patient List first.',
+                        snackPosition: SnackPosition.BOTTOM,
+                        backgroundColor: AppColors.surface,
+                        colorText: AppColors.text,
+                      );
+                      return;
+                    }
+                    if (Get.currentRoute == AppRoutes.encounters) return;
+                    Get.toNamed(AppRoutes.encounters);
+                  },
+                ),
                 _NavItem(
                   icon: Icons.medical_services_outlined,
                   label: 'Physician / HIS',
@@ -417,6 +509,8 @@ class _SidebarContent extends StatelessWidget {
                   onTap: () async {
                     if (Get.isRegistered<SelectedPatientController>()) {
                       await Get.find<SelectedPatientController>().clear();
+                    } else if (Get.isRegistered<SelectedEncounterController>()) {
+                      await Get.find<SelectedEncounterController>().clear();
                     }
                     await Get.find<AuthRepository>().logout();
                     if (Get.isRegistered<PatientListController>()) {

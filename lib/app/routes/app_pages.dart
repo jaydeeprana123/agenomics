@@ -1,5 +1,7 @@
 import 'package:get/get.dart';
 
+import '../../modules/encounters/bindings/encounters_binding.dart';
+import '../../modules/encounters/views/encounters_view.dart';
 import '../../modules/login/bindings/login_binding.dart';
 import '../../modules/login/views/login_view.dart';
 import '../../modules/patient_list/bindings/patient_list_binding.dart';
@@ -40,6 +42,11 @@ class AppPages {
       name: AppRoutes.uploadDocuments,
       page: () => const UploadDocumentsView(),
       binding: UploadDocumentsBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.encounters,
+      page: () => const EncountersView(),
+      binding: EncountersBinding(),
     ),
     GetPage(
       name: AppRoutes.physicianHis,

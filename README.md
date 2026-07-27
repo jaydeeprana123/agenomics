@@ -9,7 +9,7 @@ Responsive Flutter Claim Checker app built with GetX and Repository Pattern.
 - Dio (API client, multipart-ready)
 - GetStorage (auth token / user)
 - Mulish font family
-- file_picker (PDF / VCF)
+- file_picker (PDF / ~~VCF~~)
 
 ## Run
 

@@ -11,5 +11,10 @@ class StorageKeys {
   static const String selectedPatientMrn = 'selected_patient_mrn';
   static const String selectedPatientUhid = 'selected_patient_uhid';
   static const String selectedPatientEmiratesId = 'selected_patient_emirates_id';
+  static const String selectedEncounter = 'selected_encounter';
+  static const String selectedEncounterId = 'selected_encounter_id';
+  static const String selectedEncounterVisitId = 'selected_encounter_visit_id';
+  static const String selectedEncounterPatientId =
+      'selected_encounter_patient_id';
 }
 

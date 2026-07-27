@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../../../core/constants/storage_keys.dart';
 import '../../../core/storage/storage_service.dart';
 import '../../../data/models/patient_model.dart';
+import 'selected_encounter_controller.dart';
 
 /// Global selected patient — available on every screen via GetX + GetStorage.
 class SelectedPatientController extends GetxController {
@@ -30,12 +31,21 @@ class SelectedPatientController extends GetxController {
   }
 
   Future<void> select(PatientModel patient) async {
+    final previousId = selected.value?.id;
     selected.value = patient;
     await StorageService.write(
       StorageKeys.selectedPatient,
       patient.toJson(),
     );
     await _writeIndividualKeys(patient);
+
+    // Switching patients invalidates the previous visit selection.
+    if (previousId != null && previousId != patient.id) {
+      await _clearEncounter();
+    } else if (Get.isRegistered<SelectedEncounterController>()) {
+      await Get.find<SelectedEncounterController>()
+          .clearIfNotForPatient(patient.id);
+    }
   }
 
   Future<void> _writeIndividualKeys(PatientModel patient) async {
@@ -57,6 +67,13 @@ class SelectedPatientController extends GetxController {
     await StorageService.remove(StorageKeys.selectedPatientMrn);
     await StorageService.remove(StorageKeys.selectedPatientUhid);
     await StorageService.remove(StorageKeys.selectedPatientEmiratesId);
+    await _clearEncounter();
+  }
+
+  Future<void> _clearEncounter() async {
+    if (Get.isRegistered<SelectedEncounterController>()) {
+      await Get.find<SelectedEncounterController>().clear();
+    }
   }
 
   bool isSelected(PatientModel patient) =>

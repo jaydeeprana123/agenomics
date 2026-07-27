@@ -6,7 +6,7 @@ class ApiEndpoints {
 
   /// Real API host (Windows / Android / iOS).
   static const String remoteBaseUrl =
-      'https://32dd-115-246-26-2.ngrok-free.app';
+      'https://apis.agenomicsapi.com';
 
   /// Local bridge for Flutter Web only — browsers block cross-origin
   /// calls when the API has no CORS headers.
@@ -14,7 +14,7 @@ class ApiEndpoints {
   static const String webProxyBaseUrl = 'http://localhost:8090';
 
   /// Web → local proxy → ngrok. Native → ngrok directly.
-  static String get baseUrl => kIsWeb ? webProxyBaseUrl : remoteBaseUrl;
+  static String get baseUrl => kIsWeb ? remoteBaseUrl : remoteBaseUrl;
 
   // Auth
   static const String login = '/api/v1/auth/login';
@@ -24,6 +24,10 @@ class ApiEndpoints {
   static String patient(String uhid) => '/api/v1/patients/$uhid';
   static String engineCheck(String patientId) =>
       '/api/v1/patients/$patientId/engine-check';
+  static String patientEncounters(String patientId) =>
+      '/api/v1/patients/$patientId/encounters';
+  static String encounter(String encounterId) =>
+      '/api/v1/encounters/$encounterId';
 
   // Medicines
   static const String medicines = '/api/v1/medicines';
