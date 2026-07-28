@@ -9,6 +9,7 @@ import '../../../data/models/patient_model.dart';
 import '../../../data/repositories/encounter_repository.dart';
 import '../../shell/controllers/selected_encounter_controller.dart';
 import '../../shell/controllers/selected_patient_controller.dart';
+import '../views/encounter_details_dialog.dart';
 
 class EncountersController extends GetxController {
   EncountersController({EncounterRepository? encounterRepository})
@@ -23,6 +24,7 @@ class EncountersController extends GetxController {
   final encounters = <EncounterModel>[].obs;
   final isLoading = false.obs;
   final isRefreshing = false.obs;
+  final isLoadingDetails = false.obs;
   final errorMessage = RxnString();
 
   PatientModel? get patient => selectedPatient.selected.value;
@@ -117,6 +119,124 @@ class EncountersController extends GetxController {
       colorText: AppColors.success,
       duration: const Duration(seconds: 2),
       margin: const EdgeInsets.all(12),
+    );
+  }
+
+  /// Eye / View: fetch GET `/api/v1/encounters/{id}` and show details dialog.
+  Future<void> viewEncounter(EncounterModel encounter) async {
+    if (isLoadingDetails.value) return;
+    if (encounter.id.isEmpty) {
+      _showDetailsError(
+        title: 'Encounter unavailable',
+        message: 'This encounter has no ID and cannot be loaded.',
+      );
+      return;
+    }
+
+    isLoadingDetails.value = true;
+    Get.dialog(
+      const Center(
+        child: Card(
+          child: Padding(
+            padding: EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text(
+                  'Loading encounter details…',
+                  style: TextStyle(
+                    fontFamily: 'Mulish',
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+      barrierDismissible: false,
+    );
+
+    try {
+      final details = await _repository.getEncounterById(encounter.id);
+      if (isClosed) return;
+      _closeLoadingDialog();
+
+      if (details == null) {
+        _showDetailsError(
+          title: 'Encounter not found',
+          message:
+              'No details were returned for visit ${encounter.displayLabel}.',
+          onRetry: () => viewEncounter(encounter),
+        );
+        return;
+      }
+
+      Get.dialog(
+        EncounterDetailsDialog(details: details),
+        barrierDismissible: true,
+      );
+    } on ApiException catch (e) {
+      if (isClosed) return;
+      _closeLoadingDialog();
+      _showDetailsError(
+        title: 'Unable to load details',
+        message: e.message,
+        onRetry: () => viewEncounter(encounter),
+      );
+    } catch (_) {
+      if (isClosed) return;
+      _closeLoadingDialog();
+      _showDetailsError(
+        title: 'Unable to load details',
+        message:
+            'Unexpected error while loading encounter details. Check your network and try again.',
+        onRetry: () => viewEncounter(encounter),
+      );
+    } finally {
+      if (!isClosed) isLoadingDetails.value = false;
+    }
+  }
+
+  void _closeLoadingDialog() {
+    if (Get.isDialogOpen ?? false) {
+      Get.back();
+    }
+  }
+
+  void _showDetailsError({
+    required String title,
+    required String message,
+    VoidCallback? onRetry,
+  }) {
+    Get.dialog(
+      AlertDialog(
+        title: Text(title),
+        content: Text(
+          message,
+          style: const TextStyle(
+            fontFamily: 'Mulish',
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text('Close'),
+          ),
+          if (onRetry != null)
+            TextButton(
+              onPressed: () {
+                Get.back();
+                onRetry();
+              },
+              child: const Text('Retry'),
+            ),
+        ],
+      ),
     );
   }
 }

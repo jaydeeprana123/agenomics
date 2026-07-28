@@ -132,7 +132,11 @@ class _SelectedVisitBanner extends StatelessWidget {
           ),
           child: const Row(
             children: [
-              Icon(Icons.info_outline, size: 16, color: AppColors.textSecondary),
+              Icon(
+                Icons.info_outline,
+                size: 16,
+                color: AppColors.textSecondary,
+              ),
               SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -159,7 +163,11 @@ class _SelectedVisitBanner extends StatelessWidget {
         ),
         child: Row(
           children: [
-            const Icon(Icons.event_available, size: 16, color: AppColors.primaryDark),
+            const Icon(
+              Icons.event_available,
+              size: 16,
+              color: AppColors.primaryDark,
+            ),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -184,10 +192,7 @@ class _EncountersTable extends StatelessWidget {
   final List<EncounterModel> encounters;
   final EncountersController controller;
 
-  const _EncountersTable({
-    required this.encounters,
-    required this.controller,
-  });
+  const _EncountersTable({required this.encounters, required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -198,9 +203,31 @@ class _EncountersTable extends StatelessWidget {
             color: AppColors.surfaceLight,
             border: Border(bottom: BorderSide(color: AppColors.border)),
           ),
-          child: const SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: _HeaderRow(),
+          child: Row(
+            children: [
+              const Expanded(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: _HeaderRow(),
+                ),
+              ),
+              const SizedBox(
+                width: 72,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  child: Text(
+                    'ACTIONS',
+                    style: TextStyle(
+                      fontFamily: 'Mulish',
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textSecondary,
+                      letterSpacing: 0.4,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
         ...encounters.map((encounter) {
@@ -214,18 +241,54 @@ class _EncountersTable extends StatelessWidget {
                   border: Border(
                     bottom: const BorderSide(color: AppColors.borderLight),
                     left: BorderSide(
-                      color:
-                          isSelected ? AppColors.primary : Colors.transparent,
+                      color: isSelected
+                          ? AppColors.primary
+                          : Colors.transparent,
                       width: 3,
                     ),
                   ),
                 ),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: _DataRow(
-                    encounter: encounter,
-                    isSelected: isSelected,
-                  ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: _DataRow(
+                          encounter: encounter,
+                          isSelected: isSelected,
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 72,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 4,
+                          vertical: 4,
+                        ),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: IconButton(
+                            tooltip: 'View',
+                            visualDensity: VisualDensity.compact,
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(
+                              minWidth: 36,
+                              minHeight: 36,
+                            ),
+                            onPressed: () =>
+                                controller.viewEncounter(encounter),
+                            icon: const Icon(
+                              Icons.visibility_outlined,
+                              size: 18,
+                            ),
+                            color: AppColors.info,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -242,21 +305,21 @@ class _HeaderRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget cell(String label, double width) => SizedBox(
-          width: width,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            child: Text(
-              label,
-              style: const TextStyle(
-                fontFamily: 'Mulish',
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textSecondary,
-                letterSpacing: 0.4,
-              ),
-            ),
+      width: width,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        child: Text(
+          label,
+          style: const TextStyle(
+            fontFamily: 'Mulish',
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: AppColors.textSecondary,
+            letterSpacing: 0.4,
           ),
-        );
+        ),
+      ),
+    );
 
     return Row(
       children: [
@@ -277,20 +340,17 @@ class _DataRow extends StatelessWidget {
   final EncounterModel encounter;
   final bool isSelected;
 
-  const _DataRow({
-    required this.encounter,
-    required this.isSelected,
-  });
+  const _DataRow({required this.encounter, required this.isSelected});
 
   @override
   Widget build(BuildContext context) {
     Widget cell(Widget child, double width) => SizedBox(
-          width: width,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-            child: child,
-          ),
-        );
+      width: width,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        child: child,
+      ),
+    );
 
     final textStyle = TextStyle(
       fontFamily: 'Mulish',
@@ -321,7 +381,10 @@ class _DataRow extends StatelessWidget {
           Text(encounter.attendingProviderName ?? '—', style: textStyle),
           160,
         ),
-        cell(Text(_formatDateTime(encounter.admitDatetime), style: textStyle), 150),
+        cell(
+          Text(_formatDateTime(encounter.admitDatetime), style: textStyle),
+          150,
+        ),
         cell(
           Text(_formatDateTime(encounter.dischargeDatetime), style: textStyle),
           150,
@@ -344,10 +407,7 @@ class _EncountersCards extends StatelessWidget {
   final List<EncounterModel> encounters;
   final EncountersController controller;
 
-  const _EncountersCards({
-    required this.encounters,
-    required this.controller,
-  });
+  const _EncountersCards({required this.encounters, required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -391,6 +451,18 @@ class _EncountersCards extends StatelessWidget {
                                 : AppColors.text,
                           ),
                         ),
+                      ),
+                      IconButton(
+                        tooltip: 'View',
+                        visualDensity: VisualDensity.compact,
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(
+                          minWidth: 36,
+                          minHeight: 36,
+                        ),
+                        onPressed: () => controller.viewEncounter(encounter),
+                        icon: const Icon(Icons.visibility_outlined, size: 18),
+                        color: AppColors.info,
                       ),
                       StatusBadge(
                         label: encounter.isOpen ? 'Open' : 'Closed',
