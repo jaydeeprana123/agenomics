@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
-import '../../../core/widgets/app_button.dart';
 import '../../../data/models/engine_check_model.dart';
 import '../../../data/models/medicine_model.dart';
 import '../../../data/models/patient_model.dart';
@@ -75,13 +74,7 @@ class _HisPanel extends StatelessWidget {
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppColors.radiusLarge),
         border: Border.all(color: AppColors.border),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0F0F172A),
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
-        ],
+        boxShadow: AppColors.shadowCard,
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -89,7 +82,7 @@ class _HisPanel extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            color: AppColors.slate,
+            color: AppColors.night,
             child: Row(
               children: [
                 const Text(
@@ -107,9 +100,11 @@ class _HisPanel extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: const Color(0x3322C55E),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: const Color(0x664ADE80)),
+                    color: AppColors.brand300.withValues(alpha: 0.16),
+                    borderRadius: BorderRadius.circular(AppColors.radiusPill),
+                    border: Border.all(
+                      color: AppColors.brand300.withValues(alpha: 0.4),
+                    ),
                   ),
                   child: const Text(
                     'CDS Hooks Active',
@@ -117,7 +112,7 @@ class _HisPanel extends StatelessWidget {
                       fontFamily: 'Mulish',
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF86EFAC),
+                      color: AppColors.brand200,
                     ),
                   ),
                 ),
@@ -151,17 +146,6 @@ class _HisPanel extends StatelessWidget {
                     _MedicineSearch(controller: controller),
                     const SizedBox(height: 12),
                     _SelectedChips(controller: controller),
-                    const SizedBox(height: 16),
-                    Obx(() => AppButton(
-                          label: 'Run',
-                          icon: Icons.play_arrow_rounded,
-                          expanded: true,
-                          height: 44,
-                          isLoading: controller.isRunning.value,
-                          onPressed: controller.isRunning.value
-                              ? null
-                              : controller.runEngineCheck,
-                        )),
                     Obx(() {
                       final err = controller.engineError.value;
                       if (err == null || err.isEmpty) {
@@ -213,7 +197,7 @@ class _PatientCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF0F172A), Color(0xFF134E4A)],
+          colors: [AppColors.night, AppColors.night2],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -239,7 +223,7 @@ class _PatientCard extends StatelessWidget {
               fontFamily: 'Mulish',
               fontSize: 12,
               fontWeight: FontWeight.w500,
-              color: Color(0xB3FFFFFF),
+              color: AppColors.brand200,
             ),
           ),
           const SizedBox(height: 12),
@@ -250,19 +234,19 @@ class _PatientCard extends StatelessWidget {
               _Badge(
                 label: patient.isActive ? 'Active patient' : 'Inactive',
                 color: patient.isActive
-                    ? const Color(0xFF34D399)
+                    ? AppColors.brand300
                     : const Color(0xFFF87171),
               ),
               if (patient.emiratesId != null &&
                   patient.emiratesId!.isNotEmpty)
                 const _Badge(
                   label: 'Emirates ID on file',
-                  color: Color(0xFF60A5FA),
+                  color: AppColors.brand300,
                 ),
               if (patient.source.isNotEmpty)
                 _Badge(
                   label: patient.source,
-                  color: const Color(0xFFA78BFA),
+                  color: AppColors.brand400,
                 ),
             ],
           ),
@@ -692,7 +676,7 @@ class _EmptyCdsState extends StatelessWidget {
             ),
             SizedBox(height: 6),
             Text(
-              'Select medicines and click Run to fire the medication-prescribe hook.',
+              'Add a medicine to fire the medication-prescribe hook. Results update automatically.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontFamily: 'Mulish',

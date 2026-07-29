@@ -6,4 +6,7 @@ abstract class AppRoutes {
   static const String uploadDocuments = '/patients/documents';
   static const String encounters = '/patients/encounters';
   static const String physicianHis = '/physician-his';
+  static const String genomicsAnalysis = '/genomics-analysis';
+  static const String medicines = '/medicines';
+  static const String vcfFileRun = '/vcf-file-run';
 }

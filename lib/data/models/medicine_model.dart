@@ -1,4 +1,4 @@
-/// Matches Swagger `MedicineResponse`.
+/// Matches Swagger `MedicineResponse` / `MedicineCreate` / `MedicineUpdate`.
 class MedicineModel {
   final String id;
   final String name;
@@ -29,6 +29,33 @@ class MedicineModel {
         'requires_oncology_check': requiresOncologyCheck,
         'created_at': createdAt?.toIso8601String(),
       };
+
+  /// Swagger `MedicineCreate` body.
+  Map<String, dynamic> toCreateJson() => {
+        'name': name.trim(),
+        'requires_oncology_check': requiresOncologyCheck,
+      };
+
+  /// Swagger `MedicineUpdate` body.
+  Map<String, dynamic> toUpdateJson() => {
+        'name': name.trim(),
+        'requires_oncology_check': requiresOncologyCheck,
+      };
+
+  MedicineModel copyWith({
+    String? id,
+    String? name,
+    bool? requiresOncologyCheck,
+    DateTime? createdAt,
+  }) {
+    return MedicineModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      requiresOncologyCheck:
+          requiresOncologyCheck ?? this.requiresOncologyCheck,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
 
   @override
   bool operator ==(Object other) =>

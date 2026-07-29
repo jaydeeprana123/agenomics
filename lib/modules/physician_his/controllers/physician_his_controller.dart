@@ -37,6 +37,7 @@ class PhysicianHisController extends GetxController {
 
   Timer? _debounce;
   int _searchToken = 0;
+  int _engineToken = 0;
 
   PatientModel? get patient => selectedPatient.selected.value;
 
@@ -123,6 +124,8 @@ class PhysicianHisController extends GetxController {
     showResults.value = false;
     searchFocus.unfocus();
     engineError.value = null;
+    // Auto-run engine check with the updated prescribed list.
+    runEngineCheck();
   }
 
   void removeMedicine(MedicineModel medicine) {
@@ -141,8 +144,6 @@ class PhysicianHisController extends GetxController {
   }
 
   Future<void> runEngineCheck() async {
-    if (isRunning.value) return;
-
     final current = patient;
     if (current == null || current.id.isEmpty) {
       engineError.value = 'No patient selected. Return to Patient List.';
@@ -150,16 +151,12 @@ class PhysicianHisController extends GetxController {
     }
 
     if (selectedMedicines.isEmpty) {
-      engineError.value = 'Select at least one medicine before running.';
-      Get.snackbar(
-        'No medicines selected',
-        'Add one or more medicines, then click Run.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColors.warningBg,
-        colorText: AppColors.text,
-      );
+      engineError.value = null;
       return;
     }
+
+    final token = ++_engineToken;
+    final medicineIds = selectedMedicines.map((m) => m.id).toList();
 
     isRunning.value = true;
     engineError.value = null;
@@ -167,11 +164,13 @@ class PhysicianHisController extends GetxController {
     try {
       final result = await _medicines.runEngineCheck(
         patientId: current.id,
-        medicineIds: selectedMedicines.map((m) => m.id).toList(),
+        medicineIds: medicineIds,
       );
+      if (token != _engineToken) return;
       engineResult.value = result;
       hasRun.value = true;
     } on ApiException catch (e) {
+      if (token != _engineToken) return;
       if (e.statusCode == 401) {
         engineError.value = 'Session expired. Please sign in again.';
       } else {
@@ -185,6 +184,7 @@ class PhysicianHisController extends GetxController {
         colorText: AppColors.text,
       );
     } catch (_) {
+      if (token != _engineToken) return;
       engineError.value = 'Unexpected error while running engine check.';
       Get.snackbar(
         'Engine check failed',
@@ -194,7 +194,9 @@ class PhysicianHisController extends GetxController {
         colorText: AppColors.text,
       );
     } finally {
-      isRunning.value = false;
+      if (token == _engineToken) {
+        isRunning.value = false;
+      }
     }
   }
 

@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
+import '../../../core/widgets/app_logo_mark.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../patient_list/controllers/patient_list_controller.dart';
 import '../controllers/selected_encounter_controller.dart';
@@ -110,7 +111,7 @@ class _TopBar extends StatelessWidget {
         border: Border(bottom: BorderSide(color: AppColors.border)),
         boxShadow: [
           BoxShadow(
-            color: Color(0x0F0F172A),
+            color: Color(0x14171339),
             blurRadius: 2,
             offset: Offset(0, 1),
           ),
@@ -334,23 +335,31 @@ class _SidebarContent extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                RichText(
-                  text: const TextSpan(
-                    style: TextStyle(
-                      fontFamily: 'Mulish',
-                      fontSize: 17,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.white,
-                      letterSpacing: -0.5,
-                    ),
-                    children: [
-                      TextSpan(text: 'A'),
-                      TextSpan(
-                        text: 'Genomics',
-                        style: TextStyle(color: AppColors.secondary),
+                const Row(
+                  children: [
+                    AppLogoMark(size: 22, onDark: true),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text.rich(
+                        TextSpan(
+                          style: TextStyle(
+                            fontFamily: 'Mulish',
+                            fontSize: 15,
+                            fontWeight: FontWeight.w900,
+                            color: Colors.white,
+                            letterSpacing: -0.5,
+                          ),
+                          children: [
+                            TextSpan(
+                              text: 'A',
+                              style: TextStyle(color: AppColors.brand300),
+                            ),
+                            TextSpan(text: 'Genomics'),
+                          ],
+                        ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 2),
                 const Text(
@@ -358,8 +367,8 @@ class _SidebarContent extends StatelessWidget {
                   style: TextStyle(
                     fontFamily: 'Mulish',
                     fontSize: 9,
-                    color: Color(0x4DFFFFFF),
-                    letterSpacing: 1.5,
+                    color: AppColors.brand300,
+                    letterSpacing: 0.22 * 9,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -367,9 +376,11 @@ class _SidebarContent extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
-                    color: const Color(0x2E16A07A),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: const Color(0x4D16A07A)),
+                    color: AppColors.brand300.withValues(alpha: 0.14),
+                    borderRadius: BorderRadius.circular(AppColors.radiusPill),
+                    border: Border.all(
+                      color: AppColors.brand300.withValues(alpha: 0.35),
+                    ),
                   ),
                   child: const Text(
                     '● LIVE · Edge v3.0',
@@ -377,7 +388,7 @@ class _SidebarContent extends StatelessWidget {
                       fontFamily: 'Mulish',
                       fontSize: 9,
                       fontWeight: FontWeight.w800,
-                      color: AppColors.primary,
+                      color: AppColors.brand200,
                     ),
                   ),
                 ),
@@ -459,6 +470,57 @@ class _SidebarContent extends StatelessWidget {
                     }
                     if (Get.currentRoute == AppRoutes.physicianHis) return;
                     Get.toNamed(AppRoutes.physicianHis);
+                  },
+                ),
+                _NavItem(
+                  icon: Icons.biotech_outlined,
+                  label: 'Genomic Analysis',
+                  route: AppRoutes.genomicsAnalysis,
+                  isActive: Get.currentRoute == AppRoutes.genomicsAnalysis,
+                  onTap: () {
+                    if (Scaffold.maybeOf(context)?.isDrawerOpen ?? false) {
+                      Navigator.of(context).pop();
+                    }
+                    final selected =
+                        Get.find<SelectedPatientController>().selected.value;
+                    if (selected == null || selected.id.isEmpty) {
+                      Get.snackbar(
+                        'Select a patient',
+                        'Choose a patient from the Patient List first.',
+                        snackPosition: SnackPosition.BOTTOM,
+                        backgroundColor: AppColors.surface,
+                        colorText: AppColors.text,
+                      );
+                      return;
+                    }
+                    if (Get.currentRoute == AppRoutes.genomicsAnalysis) return;
+                    Get.toNamed(AppRoutes.genomicsAnalysis);
+                  },
+                ),
+                _NavItem(
+                  icon: Icons.medication_outlined,
+                  label: 'Medicines',
+                  route: AppRoutes.medicines,
+                  isActive: Get.currentRoute == AppRoutes.medicines,
+                  onTap: () {
+                    if (Scaffold.maybeOf(context)?.isDrawerOpen ?? false) {
+                      Navigator.of(context).pop();
+                    }
+                    if (Get.currentRoute == AppRoutes.medicines) return;
+                    Get.toNamed(AppRoutes.medicines);
+                  },
+                ),
+                _NavItem(
+                  icon: Icons.science_outlined,
+                  label: 'VCF File Run',
+                  route: AppRoutes.vcfFileRun,
+                  isActive: Get.currentRoute == AppRoutes.vcfFileRun,
+                  onTap: () {
+                    if (Scaffold.maybeOf(context)?.isDrawerOpen ?? false) {
+                      Navigator.of(context).pop();
+                    }
+                    if (Get.currentRoute == AppRoutes.vcfFileRun) return;
+                    Get.toNamed(AppRoutes.vcfFileRun);
                   },
                 ),
                 _NavItem(
@@ -589,12 +651,12 @@ class _NavItem extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 1),
       child: Material(
-        color: isActive ? AppColors.primary : Colors.transparent,
+        color: isActive ? AppColors.brand800 : Colors.transparent,
         borderRadius: BorderRadius.circular(AppColors.radius),
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(AppColors.radius),
-          hoverColor: const Color(0x2416A07A),
+          hoverColor: AppColors.brand300.withValues(alpha: 0.12),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
             child: Row(
@@ -636,7 +698,7 @@ class _StatusRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = ok ? AppColors.accent : const Color(0xFFF87171);
+    final color = ok ? AppColors.brand300 : const Color(0xFFF87171);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),

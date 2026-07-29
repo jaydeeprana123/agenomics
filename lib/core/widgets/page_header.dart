@@ -25,13 +25,14 @@ class PageHeader extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                  Text(
                   title,
                   style: const TextStyle(
                     fontFamily: 'Mulish',
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
-                    letterSpacing: -0.5,
+                    letterSpacing: -0.54,
+                    height: 1.1,
                     color: AppColors.text,
                   ),
                 ),

@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/validators.dart';
 import '../../../core/widgets/app_button.dart';
+import '../../../core/widgets/app_logo_mark.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../controllers/login_controller.dart';
 
@@ -34,6 +35,10 @@ class LoginView extends GetView<LoginController> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           if (!isWide) ...[
+                            const Center(
+                              child: AppLogoMark(size: 40),
+                            ),
+                            const SizedBox(height: 12),
                             Center(
                               child: RichText(
                                 text: const TextSpan(
@@ -41,13 +46,23 @@ class LoginView extends GetView<LoginController> {
                                     fontFamily: 'Mulish',
                                     fontSize: 28,
                                     fontWeight: FontWeight.w900,
-                                    color: AppColors.text,
+                                    color: AppColors.ink,
+                                    letterSpacing: -0.5,
                                   ),
                                   children: [
-                                    TextSpan(text: 'A'),
                                     TextSpan(
-                                      text: 'Genomics',
-                                      style: TextStyle(color: AppColors.primary),
+                                      text: 'A',
+                                      style: TextStyle(color: AppColors.brand600),
+                                    ),
+                                    TextSpan(text: 'Genomics'),
+                                    TextSpan(
+                                      text: ' API',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        letterSpacing: 0.18 * 12,
+                                        color: AppColors.textTertiary,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -56,11 +71,12 @@ class LoginView extends GetView<LoginController> {
                             const SizedBox(height: 8),
                             const Center(
                               child: Text(
-                                'Claim Checker',
+                                'CLAIM CHECKER',
                                 style: TextStyle(
                                   fontFamily: 'Mulish',
-                                  fontSize: 13,
-                                  color: AppColors.textSecondary,
+                                  fontSize: 11,
+                                  letterSpacing: 0.22 * 11,
+                                  color: AppColors.brand600,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -83,6 +99,7 @@ class LoginView extends GetView<LoginController> {
                             style: TextStyle(
                               fontFamily: 'Mulish',
                               fontSize: 13,
+                              height: 1.6,
                               color: AppColors.textSecondary,
                             ),
                           ),
@@ -181,18 +198,30 @@ class _BrandPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF080E1E),
-            Color(0xFF0D1E2A),
-            Color(0xFF0A2A22),
-          ],
-        ),
+        color: AppColors.night,
       ),
       child: Stack(
         children: [
+          // Lavender glow at top
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: RadialGradient(
+                  center: const Alignment(0, -1),
+                  radius: 1.15,
+                  colors: [
+                    AppColors.brand400.withValues(alpha: 0.2),
+                    Colors.transparent,
+                  ],
+                  stops: const [0, 0.7],
+                ),
+              ),
+            ),
+          ),
+          // 44px lavender grid at ~6% opacity (brand night surface)
+          Positioned.fill(
+            child: CustomPaint(painter: _NightGridPainter()),
+          ),
           Positioned(
             right: -40,
             top: -40,
@@ -201,7 +230,7 @@ class _BrandPanel extends StatelessWidget {
               height: 220,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.primary.withValues(alpha: 0.12),
+                color: AppColors.brand300.withValues(alpha: 0.12),
               ),
             ),
           ),
@@ -213,7 +242,7 @@ class _BrandPanel extends StatelessWidget {
               height: 280,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.primary.withValues(alpha: 0.08),
+                color: AppColors.brand600.withValues(alpha: 0.14),
               ),
             ),
           ),
@@ -222,42 +251,33 @@ class _BrandPanel extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                RichText(
-                  text: const TextSpan(
-                    style: TextStyle(
-                      fontFamily: 'Mulish',
-                      fontSize: 32,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.white,
-                      letterSpacing: -0.5,
+                const Row(
+                  children: [
+                    AppLogoMark(size: 36, onDark: true),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: _DarkWordmark(),
                     ),
-                    children: [
-                      TextSpan(text: 'A'),
-                      TextSpan(
-                        text: 'Genomics',
-                        style: TextStyle(color: AppColors.primary),
-                      ),
-                    ],
-                  ),
+                  ],
                 ),
                 const SizedBox(height: 6),
                 const Text(
-                  'CLINICAL API PLATFORM · UAE',
+                  'GENOMIC INFRASTRUCTURE FOR UAE HEALTHCARE',
                   style: TextStyle(
                     fontFamily: 'Mulish',
                     fontSize: 11,
-                    letterSpacing: 1.5,
+                    letterSpacing: 0.22 * 11,
                     fontWeight: FontWeight.w600,
-                    color: Color(0x66FFFFFF),
+                    color: AppColors.brand300,
                   ),
                 ),
                 const Spacer(),
                 const Text(
-                  'Claim Checker',
+                  'Same data. Safer patient. Cleaner claim.',
                   style: TextStyle(
                     fontFamily: 'Mulish',
-                    fontSize: 36,
-                    fontWeight: FontWeight.w900,
+                    fontSize: 34,
+                    fontWeight: FontWeight.w800,
                     color: Colors.white,
                     letterSpacing: -1,
                     height: 1.1,
@@ -270,7 +290,7 @@ class _BrandPanel extends StatelessWidget {
                     fontFamily: 'Mulish',
                     fontSize: 14,
                     height: 1.6,
-                    color: Color(0x73FFFFFF),
+                    color: AppColors.brand200,
                   ),
                 ),
                 const SizedBox(height: 32),
@@ -278,9 +298,9 @@ class _BrandPanel extends StatelessWidget {
                   spacing: 8,
                   runSpacing: 8,
                   children: const [
-                    _Chip(label: 'Patients'),
-                    _Chip(label: 'VCF / PDF Upload'),
-                    _Chip(label: 'Laravel-ready'),
+                    _Chip(label: 'FHIR R4'),
+                    _Chip(label: 'CDS Hooks'),
+                    _Chip(label: 'VCF / PDF'),
                   ],
                 ),
                 const Spacer(),
@@ -289,7 +309,7 @@ class _BrandPanel extends StatelessWidget {
                   style: TextStyle(
                     fontFamily: 'Mulish',
                     fontSize: 11,
-                    color: Color(0x4DFFFFFF),
+                    color: Color(0x66CECBF6),
                   ),
                 ),
               ],
@@ -301,6 +321,60 @@ class _BrandPanel extends StatelessWidget {
   }
 }
 
+class _DarkWordmark extends StatelessWidget {
+  const _DarkWordmark();
+
+  @override
+  Widget build(BuildContext context) {
+    return RichText(
+      text: const TextSpan(
+        style: TextStyle(
+          fontFamily: 'Mulish',
+          fontSize: 28,
+          fontWeight: FontWeight.w900,
+          color: Colors.white,
+          letterSpacing: -0.5,
+        ),
+        children: [
+          TextSpan(
+            text: 'A',
+            style: TextStyle(color: AppColors.brand300),
+          ),
+          TextSpan(text: 'Genomics'),
+          TextSpan(
+            text: ' API',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.18 * 11,
+              color: Color(0x99FFFFFF),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _NightGridPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = AppColors.brand300.withValues(alpha: 0.06)
+      ..strokeWidth = 1;
+    const step = 44.0;
+    for (double x = 0; x < size.width; x += step) {
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
+    }
+    for (double y = 0; y < size.height; y += step) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
 class _Chip extends StatelessWidget {
   final String label;
   const _Chip({required this.label});
@@ -310,9 +384,9 @@ class _Chip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: const Color(0x2416A07A),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0x4D16A07A)),
+        color: AppColors.brand300.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(AppColors.radiusPill),
+        border: Border.all(color: AppColors.brand300.withValues(alpha: 0.35)),
       ),
       child: Text(
         label,
@@ -320,7 +394,7 @@ class _Chip extends StatelessWidget {
           fontFamily: 'Mulish',
           fontSize: 11,
           fontWeight: FontWeight.w700,
-          color: AppColors.primary,
+          color: AppColors.brand200,
         ),
       ),
     );

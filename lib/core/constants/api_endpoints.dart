@@ -24,6 +24,8 @@ class ApiEndpoints {
   static String patient(String uhid) => '/api/v1/patients/$uhid';
   static String engineCheck(String patientId) =>
       '/api/v1/patients/$patientId/engine-check';
+  static String pgxResults(String patientId) =>
+      '/api/v1/patients/$patientId/pgx-results';
   static String patientEncounters(String patientId) =>
       '/api/v1/patients/$patientId/encounters';
   static String encounter(String encounterId) =>
@@ -42,4 +44,13 @@ class ApiEndpoints {
       '/api/v1/patients/$patientId/documents/genomics';
   static String uploadReports(String patientId) =>
       '/api/v1/patients/$patientId/documents/reports';
+
+  // Genomiki VCF jobs
+  static const String genomikiJobs = '/api/v1/integrations/genomiki/jobs';
+  static String genomikiJob(String genomikiJobId) =>
+      '/api/v1/integrations/genomiki/jobs/$genomikiJobId';
+  static String genomikiJobStatus(String genomikiJobId) =>
+      '/api/v1/integrations/genomiki/jobs/$genomikiJobId/status';
+  static String genomikiJobRefresh(String genomikiJobId) =>
+      '/api/v1/integrations/genomiki/jobs/$genomikiJobId/refresh';
 }

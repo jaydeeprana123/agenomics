@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
+import '../theme/app_theme.dart';
 
 enum StatusBadgeType { live, sandbox, off, success, warning, error, info, teal }
 
@@ -41,7 +42,7 @@ class StatusBadge extends StatelessWidget {
       ),
       StatusBadgeType.teal => (
         AppColors.primaryLight,
-        AppColors.primaryDark,
+        AppColors.brand700,
         AppColors.primaryMid,
       ),
       StatusBadgeType.off => (
@@ -55,7 +56,7 @@ class StatusBadge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
       decoration: BoxDecoration(
         color: bg,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(AppColors.radiusPill),
         border: Border.all(color: border),
       ),
       child: Row(
@@ -73,7 +74,7 @@ class StatusBadge extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              fontFamily: 'Mulish',
+              fontFamily: AppTheme.fontFamily,
               fontSize: 10,
               fontWeight: FontWeight.w700,
               color: fg,

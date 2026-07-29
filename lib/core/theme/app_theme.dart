@@ -6,11 +6,15 @@ import 'app_colors.dart';
 class AppTheme {
   AppTheme._();
 
+  /// Brand Identity v2: Inter (body), Inter Tight (display), JetBrains Mono (machine).
+  /// Bundled Mulish is retained as a local fallback until web fonts are available offline.
   static const String fontFamily = 'Mulish';
+  static const String fontDisplay = 'Mulish';
+  static const String fontMono = 'Mulish';
 
   static ThemeData get light {
     final colorScheme = ColorScheme.fromSeed(
-      seedColor: AppColors.primary,
+      seedColor: AppColors.brand900,
       primary: AppColors.primary,
       secondary: AppColors.secondary,
       surface: AppColors.surface,
@@ -31,7 +35,7 @@ class AppTheme {
         foregroundColor: AppColors.text,
         systemOverlayStyle: SystemUiOverlayStyle.dark,
         titleTextStyle: TextStyle(
-          fontFamily: fontFamily,
+          fontFamily: fontDisplay,
           fontSize: 16,
           fontWeight: FontWeight.w800,
           color: AppColors.text,
@@ -42,7 +46,7 @@ class AppTheme {
         elevation: 0,
         color: AppColors.surface,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppColors.radius),
+          borderRadius: BorderRadius.circular(AppColors.radiusLarge),
           side: const BorderSide(color: AppColors.border),
         ),
         margin: EdgeInsets.zero,
@@ -61,7 +65,7 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppColors.radius),
-          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+          borderSide: const BorderSide(color: AppColors.brand600, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppColors.radius),
@@ -90,22 +94,30 @@ class AppTheme {
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppColors.radius),
+            borderRadius: BorderRadius.circular(AppColors.radiusPill),
           ),
           textStyle: const TextStyle(
             fontFamily: fontFamily,
             fontSize: 13,
             fontWeight: FontWeight.w700,
           ),
+        ).copyWith(
+          overlayColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.hovered)) {
+              return AppColors.brand800.withValues(alpha: 0.12);
+            }
+            return null;
+          }),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.text,
+          backgroundColor: AppColors.surface,
           side: const BorderSide(color: AppColors.border),
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppColors.radius),
+            borderRadius: BorderRadius.circular(AppColors.radiusPill),
           ),
           textStyle: const TextStyle(
             fontFamily: fontFamily,
@@ -116,7 +128,7 @@ class AppTheme {
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: AppColors.primary,
+          foregroundColor: AppColors.brand600,
           textStyle: const TextStyle(
             fontFamily: fontFamily,
             fontSize: 13,
@@ -144,7 +156,7 @@ class AppTheme {
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppColors.radius),
+          borderRadius: BorderRadius.circular(AppColors.radiusLarge),
         ),
       ),
       progressIndicatorTheme: const ProgressIndicatorThemeData(
@@ -156,21 +168,53 @@ class AppTheme {
           return null;
         }),
       ),
+      focusColor: AppColors.brand600,
       textTheme: const TextTheme(
-        displayLarge: TextStyle(fontFamily: fontFamily, fontWeight: FontWeight.w900, color: AppColors.text),
-        displayMedium: TextStyle(fontFamily: fontFamily, fontWeight: FontWeight.w800, color: AppColors.text),
-        headlineLarge: TextStyle(fontFamily: fontFamily, fontWeight: FontWeight.w800, color: AppColors.text),
-        headlineMedium: TextStyle(fontFamily: fontFamily, fontWeight: FontWeight.w800, color: AppColors.text),
-        headlineSmall: TextStyle(fontFamily: fontFamily, fontWeight: FontWeight.w700, color: AppColors.text),
+        displayLarge: TextStyle(
+          fontFamily: fontDisplay,
+          fontWeight: FontWeight.w800,
+          letterSpacing: -0.03 * 16,
+          height: 1.1,
+          color: AppColors.text,
+        ),
+        displayMedium: TextStyle(
+          fontFamily: fontDisplay,
+          fontWeight: FontWeight.w800,
+          letterSpacing: -0.03 * 16,
+          height: 1.1,
+          color: AppColors.text,
+        ),
+        headlineLarge: TextStyle(
+          fontFamily: fontDisplay,
+          fontWeight: FontWeight.w800,
+          letterSpacing: -0.5,
+          color: AppColors.text,
+        ),
+        headlineMedium: TextStyle(
+          fontFamily: fontDisplay,
+          fontWeight: FontWeight.w800,
+          letterSpacing: -0.5,
+          color: AppColors.text,
+        ),
+        headlineSmall: TextStyle(
+          fontFamily: fontDisplay,
+          fontWeight: FontWeight.w700,
+          color: AppColors.text,
+        ),
         titleLarge: TextStyle(fontFamily: fontFamily, fontWeight: FontWeight.w700, color: AppColors.text),
         titleMedium: TextStyle(fontFamily: fontFamily, fontWeight: FontWeight.w600, color: AppColors.text),
         titleSmall: TextStyle(fontFamily: fontFamily, fontWeight: FontWeight.w600, color: AppColors.text),
-        bodyLarge: TextStyle(fontFamily: fontFamily, fontWeight: FontWeight.w400, color: AppColors.text),
-        bodyMedium: TextStyle(fontFamily: fontFamily, fontWeight: FontWeight.w400, color: AppColors.text),
+        bodyLarge: TextStyle(fontFamily: fontFamily, fontWeight: FontWeight.w400, height: 1.6, color: AppColors.text),
+        bodyMedium: TextStyle(fontFamily: fontFamily, fontWeight: FontWeight.w400, height: 1.6, color: AppColors.text),
         bodySmall: TextStyle(fontFamily: fontFamily, fontWeight: FontWeight.w400, color: AppColors.textSecondary),
         labelLarge: TextStyle(fontFamily: fontFamily, fontWeight: FontWeight.w700, color: AppColors.text),
         labelMedium: TextStyle(fontFamily: fontFamily, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
-        labelSmall: TextStyle(fontFamily: fontFamily, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+        labelSmall: TextStyle(
+          fontFamily: fontMono,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.22 * 11,
+          color: AppColors.textSecondary,
+        ),
       ),
     );
   }

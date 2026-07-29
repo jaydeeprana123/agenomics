@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 
-class AppCard extends StatelessWidget {
+class AppCard extends StatefulWidget {
   final Widget child;
   final EdgeInsetsGeometry? padding;
   final EdgeInsetsGeometry? margin;
@@ -19,30 +19,45 @@ class AppCard extends StatelessWidget {
   });
 
   @override
+  State<AppCard> createState() => _AppCardState();
+}
+
+class _AppCardState extends State<AppCard> {
+  bool _hovered = false;
+
+  @override
   Widget build(BuildContext context) {
-    final card = Container(
-      margin: margin,
-      padding: padding ?? const EdgeInsets.all(16),
+    final card = AnimatedContainer(
+      duration: const Duration(milliseconds: 180),
+      curve: Curves.easeOut,
+      margin: widget.margin,
+      padding: widget.padding ?? const EdgeInsets.all(16),
+      transform: widget.onTap != null && _hovered
+          ? Matrix4.translationValues(0, -4, 0)
+          : Matrix4.identity(),
       decoration: BoxDecoration(
-        color: color ?? AppColors.surface,
-        borderRadius: BorderRadius.circular(AppColors.radius),
-        border: Border.all(color: AppColors.border),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0D000000),
-            blurRadius: 2,
-            offset: Offset(0, 1),
-          ),
-        ],
+        color: widget.color ?? AppColors.surface,
+        borderRadius: BorderRadius.circular(AppColors.radiusLarge),
+        border: Border.all(
+          color: _hovered && widget.onTap != null
+              ? AppColors.brand300
+              : AppColors.border,
+        ),
+        boxShadow: AppColors.shadowCard,
       ),
-      child: child,
+      child: widget.child,
     );
 
-    if (onTap == null) return card;
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(AppColors.radius),
-      child: card,
+    if (widget.onTap == null) return card;
+
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: InkWell(
+        onTap: widget.onTap,
+        borderRadius: BorderRadius.circular(AppColors.radiusLarge),
+        child: card,
+      ),
     );
   }
 }

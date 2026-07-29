@@ -8,10 +8,16 @@ import '../../modules/patient_list/bindings/patient_list_binding.dart';
 import '../../modules/patient_list/views/patient_list_view.dart';
 import '../../modules/patient_registration/bindings/patient_registration_binding.dart';
 import '../../modules/patient_registration/views/patient_registration_view.dart';
+import '../../modules/genomics_analysis/bindings/genomics_analysis_binding.dart';
+import '../../modules/genomics_analysis/views/genomics_analysis_view.dart';
+import '../../modules/medicines/bindings/medicines_binding.dart';
+import '../../modules/medicines/views/medicines_view.dart';
 import '../../modules/physician_his/bindings/physician_his_binding.dart';
 import '../../modules/physician_his/views/physician_his_view.dart';
 import '../../modules/upload_documents/bindings/upload_documents_binding.dart';
 import '../../modules/upload_documents/views/upload_documents_view.dart';
+import '../../modules/vcf_file_run/bindings/vcf_file_run_binding.dart';
+import '../../modules/vcf_file_run/views/vcf_file_run_view.dart';
 import 'app_routes.dart';
 
 class AppPages {
@@ -52,6 +58,21 @@ class AppPages {
       name: AppRoutes.physicianHis,
       page: () => const PhysicianHisView(),
       binding: PhysicianHisBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.genomicsAnalysis,
+      page: () => const GenomicsAnalysisView(),
+      binding: GenomicsAnalysisBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.medicines,
+      page: () => const MedicinesView(),
+      binding: MedicinesBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.vcfFileRun,
+      page: () => const VcfFileRunView(),
+      binding: VcfFileRunBinding(),
     ),
   ];
 }
