@@ -53,4 +53,7 @@ class ApiEndpoints {
       '/api/v1/integrations/genomiki/jobs/$genomikiJobId/status';
   static String genomikiJobRefresh(String genomikiJobId) =>
       '/api/v1/integrations/genomiki/jobs/$genomikiJobId/refresh';
+
+  /// Genomiki PDF ingest — InheriGene PGx / OnQuer oncology.
+  static const String reportsPdf = '/api/v1/integrations/reports/pdf';
 }

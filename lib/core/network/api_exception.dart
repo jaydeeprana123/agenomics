@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
@@ -10,7 +12,7 @@ class ApiException implements Exception {
 
   factory ApiException.fromDio(DioException error) {
     final status = error.response?.statusCode;
-    final data = error.response?.data;
+    final data = _normalizeErrorData(error.response?.data);
 
     if (data is Map) {
       final detail = data['detail'];
@@ -67,6 +69,19 @@ class ApiException implements Exception {
       error.message ?? 'Something went wrong. Please try again.',
       statusCode: status,
     );
+  }
+
+  /// Dio may return error bodies as bytes when `ResponseType.bytes` was used.
+  static dynamic _normalizeErrorData(dynamic data) {
+    if (data is Map || data is String) return data;
+    if (data is List<int>) {
+      try {
+        final decoded = jsonDecode(utf8.decode(data));
+        if (decoded is Map) return decoded;
+        if (decoded is String) return decoded;
+      } catch (_) {}
+    }
+    return data;
   }
 
   @override

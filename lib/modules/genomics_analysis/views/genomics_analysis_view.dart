@@ -49,6 +49,17 @@ class GenomicsAnalysisView extends GetView<GenomicsAnalysisController> {
                           onPressed: () =>
                               controller.loadResults(refresh: true),
                         ),
+                        Obx(
+                          () => AppButton(
+                            label: 'Download PDF Report',
+                            icon: Icons.picture_as_pdf_outlined,
+                            isLoading: controller.isDownloadingPdf.value,
+                            onPressed: controller.patient == null ||
+                                    (controller.patient?.id.isEmpty ?? true)
+                                ? null
+                                : controller.downloadPdfReport,
+                          ),
+                        ),
                       ],
                     ),
                     Obx(() {

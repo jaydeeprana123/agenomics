@@ -7,6 +7,7 @@ import '../../data/repositories/genomiki_repository.dart';
 import '../../data/repositories/medicine_repository.dart';
 import '../../data/repositories/patient_repository.dart';
 import '../../data/repositories/pgx_repository.dart';
+import '../../data/repositories/report_pdf_repository.dart';
 import '../../modules/shell/controllers/selected_encounter_controller.dart';
 import '../../modules/shell/controllers/selected_patient_controller.dart';
 
@@ -19,6 +20,7 @@ class InitialBinding extends Bindings {
     Get.put<MedicineRepository>(MedicineRepository(), permanent: true);
     Get.put<EncounterRepository>(EncounterRepository(), permanent: true);
     Get.put<PgxRepository>(PgxRepository(), permanent: true);
+    Get.put<ReportPdfRepository>(ReportPdfRepository(), permanent: true);
     Get.put<GenomikiRepository>(GenomikiRepository(), permanent: true);
     Get.put<SelectedPatientController>(
       SelectedPatientController(),

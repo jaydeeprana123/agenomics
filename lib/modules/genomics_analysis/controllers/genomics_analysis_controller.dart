@@ -1,19 +1,27 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../app/routes/app_routes.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/pdf_file_helper.dart';
 import '../../../data/models/patient_model.dart';
 import '../../../data/models/pgx_result_model.dart';
 import '../../../data/repositories/pgx_repository.dart';
+import '../../../data/repositories/report_pdf_repository.dart';
 import '../../shell/controllers/selected_patient_controller.dart';
 
 class GenomicsAnalysisController extends GetxController {
-  GenomicsAnalysisController({PgxRepository? pgxRepository})
-      : _repository = pgxRepository ?? Get.find<PgxRepository>();
+  GenomicsAnalysisController({
+    PgxRepository? pgxRepository,
+    ReportPdfRepository? reportPdfRepository,
+  })  : _repository = pgxRepository ?? Get.find<PgxRepository>(),
+        _reportPdfRepository =
+            reportPdfRepository ?? Get.find<ReportPdfRepository>();
 
   final PgxRepository _repository;
+  final ReportPdfRepository _reportPdfRepository;
   final SelectedPatientController selectedPatient =
       Get.find<SelectedPatientController>();
 
@@ -21,6 +29,7 @@ class GenomicsAnalysisController extends GetxController {
   final panelRows = <PgxPanelRow>[].obs;
   final isLoading = false.obs;
   final isRefreshing = false.obs;
+  final isDownloadingPdf = false.obs;
   final errorMessage = RxnString();
 
   PatientModel? get patient => selectedPatient.selected.value;
@@ -137,6 +146,135 @@ class GenomicsAnalysisController extends GetxController {
       if (!isClosed) {
         isLoading.value = false;
         isRefreshing.value = false;
+      }
+    }
+  }
+
+  /// Calls `POST /api/v1/integrations/reports/pdf` for the selected patient.
+  ///
+  /// Picks an InheriGene / OnQuer Genomiki PDF, uploads it with patient details,
+  /// then opens/saves any returned PDF URL or bytes and refreshes PGx results.
+  Future<void> downloadPdfReport() async {
+    if (isClosed || isDownloadingPdf.value) return;
+
+    final current = patient;
+    if (current == null || current.id.isEmpty) {
+      Get.snackbar(
+        'Select a patient',
+        'Choose a patient before downloading a PDF report.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColors.errorBg,
+        colorText: AppColors.error,
+      );
+      return;
+    }
+
+    final picked = await FilePicker.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: const ['pdf'],
+      allowMultiple: false,
+      withData: true,
+    );
+    if (picked == null || picked.files.isEmpty) return;
+
+    final file = picked.files.first;
+    final fileName = file.name.trim().isEmpty ? 'report.pdf' : file.name;
+    final bytes = file.bytes;
+    final path = file.path;
+
+    if ((bytes == null || bytes.isEmpty) && (path == null || path.isEmpty)) {
+      Get.snackbar(
+        'Unable to read file',
+        'Could not read the selected PDF. Please try another file.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColors.errorBg,
+        colorText: AppColors.error,
+      );
+      return;
+    }
+
+    isDownloadingPdf.value = true;
+
+    try {
+      final result = await _reportPdfRepository.ingestReportPdf(
+        patientId: current.id,
+        fileName: fileName,
+        filePath: path,
+        fileBytes: bytes,
+        includePatientDetails: true,
+      );
+
+      if (isClosed) return;
+
+      String successDetail =
+          result.message?.trim().isNotEmpty == true
+              ? result.message!.trim()
+              : 'Report generated successfully.';
+
+      if (result.reportType != null && result.reportType!.trim().isNotEmpty) {
+        successDetail = '$successDetail (${result.reportType})';
+      }
+
+      if (result.hasPdfUrl) {
+        final outName = PdfFileHelper.defaultFileName(
+          patientName: current.name,
+          uhid: current.uhid,
+        );
+        final savedPath = await PdfFileHelper.openOrDownloadPdfUrl(
+          url: result.url!,
+          fileName: outName,
+        );
+        successDetail = savedPath == null
+            ? 'Report generated successfully. The PDF was opened in a new tab.'
+            : 'Report generated successfully. ${PdfFileHelper.platformSaveHint(savedPath)}';
+      } else if (result.hasPdfBytes) {
+        final outName = PdfFileHelper.defaultFileName(
+          patientName: current.name,
+          uhid: current.uhid,
+        );
+        final savedPath = await PdfFileHelper.savePdfBytes(
+          bytes: result.bytes!,
+          fileName: outName,
+        );
+        successDetail =
+            'Report generated successfully. ${PdfFileHelper.platformSaveHint(savedPath)}';
+      }
+
+      Get.snackbar(
+        'PDF report ready',
+        successDetail,
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColors.successBg,
+        colorText: AppColors.success,
+        duration: const Duration(seconds: 4),
+      );
+
+      // InheriGene ingest writes into patient_pgx_results — refresh the panel.
+      await loadResults(refresh: true);
+    } on ApiException catch (e) {
+      if (isClosed) return;
+      Get.snackbar(
+        'Unable to generate PDF report',
+        e.statusCode == 401
+            ? 'Session expired. Please sign in again.'
+            : e.message,
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColors.errorBg,
+        colorText: AppColors.error,
+        duration: const Duration(seconds: 5),
+      );
+    } catch (e) {
+      if (isClosed) return;
+      Get.snackbar(
+        'Unable to generate PDF report',
+        e.toString().replaceFirst('Exception: ', ''),
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColors.errorBg,
+        colorText: AppColors.error,
+      );
+    } finally {
+      if (!isClosed) {
+        isDownloadingPdf.value = false;
       }
     }
   }
