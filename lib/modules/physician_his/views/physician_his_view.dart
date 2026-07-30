@@ -638,8 +638,9 @@ class _CdsPanel extends StatelessWidget {
                 separatorBuilder: (_, _) => const SizedBox(height: 10),
                 itemBuilder: (context, index) {
                   final alert = alerts[index];
-                  final medName =
-                      controller.medicineNameFor(alert.medicineId);
+                  final medName = alert.resolvedMedicineName(
+                    controller.medicineNameFor(alert.medicineId),
+                  );
                   return _AlertCard(alert: alert, medicineName: medName);
                 },
               );
@@ -752,18 +753,150 @@ class _AlertCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (accent, bg, label) = _severityStyle(alert);
+    final clinical = alert.clinicalAlert;
 
-    final headlineParts = <String>[
-      if (alert.title != null && alert.title!.isNotEmpty) alert.title!,
-      if (medicineName.isNotEmpty) medicineName,
-    ];
-    final headline = headlineParts.isEmpty
-        ? alert.displayTitle
-        : headlineParts.join(' + ');
-
+    final headline = _headline();
     final body = alert.message ??
         alert.recommendation ??
-        'Clinical guidance available for this finding.';
+        clinical?.recommendationText;
+
+    final metaChips = <Widget>[
+      if (_hasText(alert.gene))
+        _MetaChip(
+          icon: Icons.biotech_outlined,
+          label: alert.gene!,
+          bg: AppColors.infoBg,
+          fg: AppColors.info,
+        ),
+      if (_hasText(alert.diplotype))
+        _MetaChip(
+          icon: Icons.schema_outlined,
+          label: alert.diplotype!,
+          bg: AppColors.surfaceLight,
+          fg: AppColors.textSecondary,
+        ),
+      if (_hasText(alert.phenotype) || _hasText(alert.metabolizerStatus))
+        _MetaChip(
+          icon: Icons.science_outlined,
+          label: alert.metabolizerStatus ?? alert.phenotype!,
+          bg: bg,
+          fg: accent,
+        ),
+      if (_hasText(alert.area))
+        _MetaChip(
+          icon: Icons.local_hospital_outlined,
+          label: alert.area!,
+          bg: AppColors.surfaceLight,
+          fg: AppColors.textSecondary,
+        ),
+      if (_hasText(alert.alertStatus))
+        _MetaChip(
+          icon: Icons.flag_outlined,
+          label: alert.alertStatus!,
+          bg: AppColors.surfaceLight,
+          fg: AppColors.textSecondary,
+        ),
+      if (_hasText(alert.riskFactor))
+        _MetaChip(
+          icon: Icons.warning_amber_rounded,
+          label: alert.riskFactor!,
+          bg: bg,
+          fg: accent,
+        ),
+      if (_hasText(alert.onset))
+        _MetaChip(
+          icon: Icons.schedule,
+          label: 'Onset: ${alert.onset}',
+          bg: AppColors.surfaceLight,
+          fg: AppColors.textSecondary,
+        ),
+      if (_hasText(alert.monitoring))
+        _MetaChip(
+          icon: Icons.monitor_heart_outlined,
+          label: alert.monitoring!,
+          bg: AppColors.infoBg,
+          fg: AppColors.info,
+        ),
+      if (_hasText(alert.biomarkerType))
+        _MetaChip(
+          icon: Icons.bloodtype_outlined,
+          label: alert.biomarkerType!,
+          bg: AppColors.infoBg,
+          fg: AppColors.info,
+        ),
+      if (_hasText(alert.patientStatus))
+        _MetaChip(
+          icon: Icons.person_outline,
+          label: 'Patient: ${alert.patientStatus}',
+          bg: AppColors.surfaceLight,
+          fg: AppColors.textSecondary,
+        ),
+      if (_hasText(alert.patientValue))
+        _MetaChip(
+          icon: Icons.numbers,
+          label: 'Value: ${alert.patientValue}',
+          bg: AppColors.surfaceLight,
+          fg: AppColors.textSecondary,
+        ),
+      if (_hasText(alert.requiredStatus))
+        _MetaChip(
+          icon: Icons.rule,
+          label: 'Required: ${alert.requiredStatus}',
+          bg: bg,
+          fg: accent,
+        ),
+      if (alert.eligible != null)
+        _MetaChip(
+          icon: alert.eligible!
+              ? Icons.check_circle_outline
+              : Icons.cancel_outlined,
+          label: alert.eligible! ? 'Eligible' : 'Not eligible',
+          bg: alert.eligible! ? AppColors.successBg : AppColors.errorBg,
+          fg: alert.eligible! ? AppColors.success : AppColors.error,
+        ),
+      if (_hasText(clinical?.classification))
+        _MetaChip(
+          icon: Icons.label_outline,
+          label: clinical!.classification!,
+          bg: bg,
+          fg: accent,
+        ),
+      if (_hasText(clinical?.source))
+        _MetaChip(
+          icon: Icons.menu_book_outlined,
+          label: clinical!.source!,
+          bg: AppColors.surfaceLight,
+          fg: AppColors.textSecondary,
+        ),
+      if (_hasText(clinical?.population))
+        _MetaChip(
+          icon: Icons.groups_outlined,
+          label: clinical!.population!,
+          bg: AppColors.surfaceLight,
+          fg: AppColors.textSecondary,
+        ),
+    ];
+
+    final detailRows = <_DetailRow>[
+      if (_hasText(alert.reason))
+        _DetailRow(label: 'Reason', value: alert.reason!),
+      if (_hasText(clinical?.guidelineName))
+        _DetailRow(label: 'Guideline', value: clinical!.guidelineName!),
+      if (_hasText(clinical?.guidelineVersion) &&
+          clinical?.guidelineVersion != clinical?.guidelineName)
+        _DetailRow(label: 'Version', value: clinical!.guidelineVersion!),
+      if (_hasText(clinical?.citationUrl))
+        _DetailRow(label: 'Citation', value: clinical!.citationUrl!),
+      if (_hasText(clinical?.publicationDate))
+        _DetailRow(label: 'Published', value: clinical!.publicationDate!),
+      if (_hasText(clinical?.lastSyncedAt))
+        _DetailRow(label: 'Synced', value: clinical!.lastSyncedAt!),
+      if (_hasText(clinical?.comments))
+        _DetailRow(label: 'Comments', value: clinical!.comments!),
+    ];
+
+    final showRecommendation = _hasText(alert.recommendation) &&
+        alert.recommendation != body;
 
     return Container(
       decoration: BoxDecoration(
@@ -834,51 +967,56 @@ class _AlertCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      body,
-                      style: const TextStyle(
-                        fontFamily: 'Mulish',
-                        fontSize: 12.5,
-                        height: 1.45,
-                        color: AppColors.textSecondary,
-                        fontWeight: FontWeight.w500,
+                    if (_hasText(body)) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        body!,
+                        style: const TextStyle(
+                          fontFamily: 'Mulish',
+                          fontSize: 12.5,
+                          height: 1.45,
+                          color: AppColors.textSecondary,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                    ),
-                    if (alert.riskFactor != null ||
-                        alert.onset != null ||
-                        alert.monitoring != null) ...[
+                    ],
+                    if (metaChips.isNotEmpty) ...[
                       const SizedBox(height: 10),
                       Wrap(
                         spacing: 6,
                         runSpacing: 6,
-                        children: [
-                          if (alert.riskFactor != null)
-                            _MetaChip(
-                              icon: Icons.warning_amber_rounded,
-                              label: alert.riskFactor!,
-                              bg: bg,
-                              fg: accent,
-                            ),
-                          if (alert.onset != null)
-                            _MetaChip(
-                              icon: Icons.schedule,
-                              label: 'Onset: ${alert.onset}',
-                              bg: AppColors.surfaceLight,
-                              fg: AppColors.textSecondary,
-                            ),
-                          if (alert.monitoring != null)
-                            _MetaChip(
-                              icon: Icons.monitor_heart_outlined,
-                              label: alert.monitoring!,
-                              bg: AppColors.infoBg,
-                              fg: AppColors.info,
-                            ),
-                        ],
+                        children: metaChips,
                       ),
                     ],
-                    if (alert.recommendation != null &&
-                        alert.recommendation != body) ...[
+                    if (detailRows.isNotEmpty) ...[
+                      const SizedBox(height: 10),
+                      ...detailRows.map(
+                        (row) => Padding(
+                          padding: const EdgeInsets.only(bottom: 4),
+                          child: RichText(
+                            text: TextSpan(
+                              style: const TextStyle(
+                                fontFamily: 'Mulish',
+                                fontSize: 11.5,
+                                height: 1.4,
+                                color: AppColors.textSecondary,
+                              ),
+                              children: [
+                                TextSpan(
+                                  text: '${row.label}: ',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w800,
+                                    color: AppColors.text,
+                                  ),
+                                ),
+                                TextSpan(text: row.value),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                    if (showRecommendation) ...[
                       const SizedBox(height: 10),
                       Text(
                         alert.recommendation!,
@@ -888,6 +1026,20 @@ class _AlertCard extends StatelessWidget {
                           fontWeight: FontWeight.w600,
                           color: AppColors.text,
                           height: 1.4,
+                        ),
+                      ),
+                    ],
+                    if (_hasText(clinical?.disclaimer)) ...[
+                      const SizedBox(height: 10),
+                      Text(
+                        clinical!.disclaimer!,
+                        style: const TextStyle(
+                          fontFamily: 'Mulish',
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.textTertiary,
+                          height: 1.4,
+                          fontStyle: FontStyle.italic,
                         ),
                       ),
                     ],
@@ -917,6 +1069,25 @@ class _AlertCard extends StatelessWidget {
     );
   }
 
+  String _headline() {
+    // Avoid duplicating drug name when title already includes gene · drug.
+    final title = alert.title?.trim() ?? '';
+    final med = medicineName.trim();
+    if (title.isEmpty && med.isEmpty) return alert.displayTitle;
+    if (title.isEmpty) return med;
+    if (med.isEmpty) return title;
+    if (title.toLowerCase().contains(med.toLowerCase())) return title;
+    return '$title + $med';
+  }
+
+  bool _hasText(String? value) {
+    if (value == null) return false;
+    final text = value.trim();
+    return text.isNotEmpty &&
+        text.toLowerCase() != 'null' &&
+        text.toLowerCase() != 'n/a';
+  }
+
   (Color, Color, String) _severityStyle(EngineAlert alert) {
     if (alert.isCritical) {
       return (AppColors.error, AppColors.errorBg, 'WARNING');
@@ -927,8 +1098,18 @@ class _AlertCard extends StatelessWidget {
     if (alert.category == 'oncology') {
       return (AppColors.info, AppColors.infoBg, 'INFO');
     }
+    if (alert.category == 'pgx') {
+      return (AppColors.info, AppColors.infoBg, 'PGx');
+    }
     return (AppColors.warning, AppColors.warningBg, 'ALERT');
   }
+}
+
+class _DetailRow {
+  final String label;
+  final String value;
+
+  const _DetailRow({required this.label, required this.value});
 }
 
 class _MetaChip extends StatelessWidget {

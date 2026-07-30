@@ -26,6 +26,22 @@ class GenomicsAnalysisController extends GetxController {
   PatientModel? get patient => selectedPatient.selected.value;
 
   String get sourceLabel {
+    final fromResults = results
+        .map((r) => r.dataSource?.trim() ?? '')
+        .firstWhere((s) => s.isNotEmpty, orElse: () => '');
+    if (fromResults.isNotEmpty) {
+      switch (fromResults.toLowerCase()) {
+        case 'pharmcat':
+          return 'PharmCAT';
+        case 'hl7':
+          return 'Malaffi HIE';
+        case 'fhir':
+          return 'FHIR R4 · HIE';
+        default:
+          return fromResults;
+      }
+    }
+
     final source = patient?.source.trim() ?? '';
     if (source.isEmpty) return 'Malaffi HIE';
     switch (source.toLowerCase()) {
@@ -43,6 +59,10 @@ class GenomicsAnalysisController extends GetxController {
   }
 
   String get pharmCatRunLabel {
+    final processed = results.map((r) => r.pharmcatProcessed).whereType<bool>();
+    if (processed.any((v) => v)) return 'Yes — on-edge';
+    if (processed.isNotEmpty) return 'No — pre-interpreted';
+
     final source = (patient?.source ?? '').toLowerCase();
     if (source.contains('vcf')) return 'Yes — on-edge';
     return 'No — pre-interpreted';

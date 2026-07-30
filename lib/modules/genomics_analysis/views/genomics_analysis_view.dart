@@ -132,17 +132,26 @@ class _ResultsPanel extends StatelessWidget {
 
       return AppCard(
         padding: EdgeInsets.zero,
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: SizedBox(
-            width: 760,
-            child: Column(
-              children: [
-                const _TableHeader(),
-                ...rows.map((row) => _ResultRow(row: row)),
-              ],
-            ),
-          ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final tableWidth =
+                constraints.maxWidth.isFinite && constraints.maxWidth > 0
+                    ? constraints.maxWidth
+                    : 980.0;
+
+            return SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: SizedBox(
+                width: tableWidth < 720 ? 720 : tableWidth,
+                child: Column(
+                  children: [
+                    const _TableHeader(),
+                    ...rows.map((row) => _ResultRow(row: row)),
+                  ],
+                ),
+              ),
+            );
+          },
         ),
       );
     });
@@ -160,13 +169,14 @@ class _TableHeader extends StatelessWidget {
         border: Border(bottom: BorderSide(color: AppColors.border)),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+
       child: const Row(
         children: [
-          Expanded(flex: 18, child: _ColLabel('GENE')),
-          Expanded(flex: 16, child: _ColLabel('DIPLOTYPE')),
-          Expanded(flex: 28, child: _ColLabel('PHENOTYPE')),
-          Expanded(flex: 10, child: _ColLabel('CPIC')),
-          Expanded(flex: 28, child: _ColLabel('AFFECTED AGENTS')),
+          Expanded(flex: 14, child: _ColLabel('GENE')),
+          Expanded(flex: 14, child: _ColLabel('DIPLOTYPE')),
+          Expanded(flex: 20, child: _ColLabel('PHENOTYPE')),
+          Expanded(flex: 8, child: _ColLabel('CPIC')),
+          Expanded(flex: 44, child: _ColLabel('AFFECTED DRUGS')),
         ],
       ),
     );
@@ -206,10 +216,10 @@ class _ResultRow extends StatelessWidget {
         border: Border(bottom: BorderSide(color: AppColors.borderLight)),
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
-            flex: 18,
+            flex: 14,
             child: Text(
               row.gene,
               style: const TextStyle(
@@ -221,7 +231,7 @@ class _ResultRow extends StatelessWidget {
             ),
           ),
           Expanded(
-            flex: 16,
+            flex: 14,
             child: Text(
               row.diplotype,
               style: const TextStyle(
@@ -233,31 +243,102 @@ class _ResultRow extends StatelessWidget {
             ),
           ),
           Expanded(
-            flex: 28,
+            flex: 20,
             child: Align(
               alignment: Alignment.centerLeft,
               child: _PhenotypeBadge(label: row.phenotype),
             ),
           ),
           Expanded(
-            flex: 10,
+            flex: 8,
             child: Align(
               alignment: Alignment.centerLeft,
               child: _CpicBadge(level: row.cpicLevel),
             ),
           ),
           Expanded(
-            flex: 28,
-            child: Text(
-              row.affectedAgents,
+            flex: 44,
+            child: _AffectedDrugsCell(drugs: row.affectedDrugs),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AffectedDrugsCell extends StatelessWidget {
+  final List<PgxAffectedDrug> drugs;
+
+  const _AffectedDrugsCell({required this.drugs});
+
+  @override
+  Widget build(BuildContext context) {
+    final visible = drugs.where((d) => d.hasDisplayContent).toList();
+    if (visible.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return SizedBox(
+      width: double.infinity,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (var i = 0; i < visible.length; i++) ...[
+            if (i > 0) const SizedBox(height: 10),
+            _AffectedDrugItem(drug: visible[i]),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _AffectedDrugItem extends StatelessWidget {
+  final PgxAffectedDrug drug;
+
+  const _AffectedDrugItem({required this.drug});
+
+  @override
+  Widget build(BuildContext context) {
+    final name = drug.drug?.trim();
+    final recommendation = drug.recommendationText?.trim();
+    final hasName = name != null && name.isNotEmpty;
+    final hasRecommendation =
+        recommendation != null && recommendation.isNotEmpty;
+
+    if (!hasName && !hasRecommendation) {
+      return const SizedBox.shrink();
+    }
+
+    return SizedBox(
+      width: double.infinity,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (hasName)
+            Text(
+              name,
+              softWrap: true,
+              style: const TextStyle(
+                fontFamily: 'Mulish',
+                fontSize: 12,
+                fontWeight: FontWeight.w800,
+                color: AppColors.text,
+              ),
+            ),
+          if (hasName && hasRecommendation) const SizedBox(height: 3),
+          if (hasRecommendation)
+            Text(
+              recommendation,
+              softWrap: true,
               style: const TextStyle(
                 fontFamily: 'Mulish',
                 fontSize: 11,
                 fontWeight: FontWeight.w500,
+                height: 1.45,
                 color: AppColors.textSecondary,
               ),
             ),
-          ),
         ],
       ),
     );
@@ -298,6 +379,18 @@ class _CpicBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (level == '—' || level.trim().isEmpty) {
+      return const Text(
+        '—',
+        style: TextStyle(
+          fontFamily: 'Mulish',
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: AppColors.textTertiary,
+        ),
+      );
+    }
+
     return Container(
       width: 26,
       height: 26,

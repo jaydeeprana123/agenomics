@@ -18,6 +18,7 @@ class PgxRepository {
           .whereType<Map>()
           .map((e) => PgxResultModel.fromJson(Map<String, dynamic>.from(e)))
           .toList();
+
       return list;
     } on DioException catch (e) {
       throw ApiException.fromDio(e);
