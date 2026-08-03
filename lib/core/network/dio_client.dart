@@ -1,6 +1,12 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:get/get.dart' hide FormData, MultipartFile, Response;
 
+import '../../app/routes/app_routes.dart';
+import '../../data/repositories/auth_repository.dart';
+import '../../modules/patient_list/controllers/patient_list_controller.dart';
+import '../../modules/shell/controllers/selected_encounter_controller.dart';
+import '../../modules/shell/controllers/selected_patient_controller.dart';
 import '../constants/api_endpoints.dart';
 import '../storage/storage_service.dart';
 import 'api_logger.dart';
@@ -10,6 +16,7 @@ class DioClient {
   DioClient._();
 
   static Dio? _dio;
+  static bool _handlingUnauthorized = false;
 
   static Dio get instance {
     _dio ??= _create();
@@ -56,7 +63,7 @@ class DioClient {
           ApiLogger.logResponse(response);
           handler.next(response);
         },
-        onError: (error, handler) {
+        onError: (error, handler) async {
           ApiLogger.logError(error);
           if (kDebugMode &&
               kIsWeb &&
@@ -67,12 +74,55 @@ class DioClient {
               '(forwards to ${ApiEndpoints.remoteBaseUrl})',
             );
           }
+
+          if (_isUnauthorized(error)) {
+            await _handleUnauthorized();
+          }
+
           handler.next(error);
         },
       ),
     );
 
     return dio;
+  }
+
+  static bool _isUnauthorized(DioException error) {
+    if (error.response?.statusCode != 401) return false;
+    // Failed login credentials must not trigger a session logout.
+    final path = error.requestOptions.path;
+    if (path.contains(ApiEndpoints.login)) return false;
+    return true;
+  }
+
+  /// Clears session state and sends the user to login (once per burst of 401s).
+  static Future<void> _handleUnauthorized() async {
+    if (_handlingUnauthorized) return;
+    _handlingUnauthorized = true;
+
+    try {
+      if (Get.isRegistered<SelectedPatientController>()) {
+        await Get.find<SelectedPatientController>().clear();
+      } else if (Get.isRegistered<SelectedEncounterController>()) {
+        await Get.find<SelectedEncounterController>().clear();
+      }
+
+      if (Get.isRegistered<AuthRepository>()) {
+        await Get.find<AuthRepository>().logout();
+      } else {
+        await StorageService.clearAuth();
+      }
+
+      if (Get.isRegistered<PatientListController>()) {
+        Get.delete<PatientListController>(force: true);
+      }
+
+      if (Get.currentRoute != AppRoutes.login) {
+        Get.offAllNamed(AppRoutes.login);
+      }
+    } finally {
+      _handlingUnauthorized = false;
+    }
   }
 
   static Future<Response<T>> uploadMultipart<T>({

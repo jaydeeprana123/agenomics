@@ -16,9 +16,9 @@ class GenomicsAnalysisController extends GetxController {
   GenomicsAnalysisController({
     PgxRepository? pgxRepository,
     ReportPdfRepository? reportPdfRepository,
-  })  : _repository = pgxRepository ?? Get.find<PgxRepository>(),
-        _reportPdfRepository =
-            reportPdfRepository ?? Get.find<ReportPdfRepository>();
+  }) : _repository = pgxRepository ?? Get.find<PgxRepository>(),
+       _reportPdfRepository =
+           reportPdfRepository ?? Get.find<ReportPdfRepository>();
 
   final PgxRepository _repository;
   final ReportPdfRepository _reportPdfRepository;
@@ -154,7 +154,7 @@ class GenomicsAnalysisController extends GetxController {
   ///
   /// Picks an InheriGene / OnQuer Genomiki PDF, uploads it with patient details,
   /// then opens/saves any returned PDF URL or bytes and refreshes PGx results.
-  Future<void> downloadPdfReport() async {
+  Future<void> uploadPdfReport() async {
     if (isClosed || isDownloadingPdf.value) return;
 
     final current = patient;
@@ -206,10 +206,9 @@ class GenomicsAnalysisController extends GetxController {
 
       if (isClosed) return;
 
-      String successDetail =
-          result.message?.trim().isNotEmpty == true
-              ? result.message!.trim()
-              : 'Report generated successfully.';
+      String successDetail = result.message?.trim().isNotEmpty == true
+          ? result.message!.trim()
+          : 'Report generated successfully.';
 
       if (result.reportType != null && result.reportType!.trim().isNotEmpty) {
         successDetail = '$successDetail (${result.reportType})';
