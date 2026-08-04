@@ -5,12 +5,15 @@ import '../../../app/routes/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/models/patient_model.dart';
 import '../../../data/repositories/patient_repository.dart';
+import '../../consent/controllers/consent_desktop_controller.dart';
 import '../../shell/controllers/selected_patient_controller.dart';
 
 class PatientListController extends GetxController {
   final PatientRepository _repository = Get.find<PatientRepository>();
   final SelectedPatientController selectedPatient =
       Get.find<SelectedPatientController>();
+  final ConsentDesktopController consent =
+      Get.find<ConsentDesktopController>();
 
   final searchController = TextEditingController();
   final searchQuery = ''.obs;
@@ -70,6 +73,7 @@ class PatientListController extends GetxController {
       patients.assignAll(result.data);
       lastPage.value = result.lastPage;
       total.value = result.total;
+      consent.watchPatients(result.data);
     } catch (e) {
       if (isClosed) return;
       Get.snackbar(
@@ -237,6 +241,11 @@ class PatientListController extends GetxController {
     )?.then((_) {
       if (!isClosed) loadPatients(refresh: true);
     });
+  }
+
+  Future<void> requestConsent(PatientModel patient) async {
+    await selectPatient(patient);
+    await consent.requestConsent(patient);
   }
 
   Future<void> deletePatient(PatientModel patient) async {

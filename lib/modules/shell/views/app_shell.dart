@@ -33,15 +33,15 @@ class AppShell extends StatelessWidget {
       drawer: showSidebar
           ? null
           : Drawer(
-              backgroundColor: AppColors.sidebar,
-              width: 210,
+              backgroundColor: AppColors.night2,
+              width: 250,
               child: SafeArea(child: _SidebarContent(controller: shell)),
             ),
       body: Row(
         children: [
           if (showSidebar)
             SizedBox(
-              width: 210,
+              width: 250,
               child: _SidebarContent(controller: shell),
             ),
           Expanded(
@@ -104,18 +104,11 @@ class _TopBar extends StatelessWidget {
     final selectedEncounter = Get.find<SelectedEncounterController>();
 
     return Container(
-      height: 54,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      height: 56,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       decoration: const BoxDecoration(
         color: AppColors.surface,
         border: Border(bottom: BorderSide(color: AppColors.border)),
-        boxShadow: [
-          BoxShadow(
-            color: Color(0x14171339),
-            blurRadius: 2,
-            offset: Offset(0, 1),
-          ),
-        ],
       ),
       child: Row(
         children: [
@@ -130,10 +123,10 @@ class _TopBar extends StatelessWidget {
               title,
               style: const TextStyle(
                 fontFamily: 'Mulish',
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                letterSpacing: -0.2,
-                color: AppColors.slate,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                letterSpacing: -0.3,
+                color: AppColors.ink,
               ),
               overflow: TextOverflow.ellipsis,
             ),
@@ -145,14 +138,14 @@ class _TopBar extends StatelessWidget {
             if (patient == null) {
               return InkWell(
                 onTap: _openPatientList,
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(AppColors.radiusSmall),
                 child: Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(
-                    color: AppColors.surfaceLight,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: AppColors.border),
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(AppColors.radiusSmall),
+                    border: Border.all(color: AppColors.borderStrong),
                   ),
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,
@@ -165,7 +158,7 @@ class _TopBar extends StatelessWidget {
                         style: TextStyle(
                           fontFamily: 'Mulish',
                           fontSize: 11,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w500,
                           color: AppColors.textSecondary,
                         ),
                       ),
@@ -180,20 +173,20 @@ class _TopBar extends StatelessWidget {
               children: [
                 InkWell(
                   onTap: _openPatientList,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(AppColors.radiusSmall),
                   child: Container(
                     padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
-                      color: AppColors.primaryLight,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: AppColors.primaryMid),
+                      color: AppColors.brand600,
+                      borderRadius: BorderRadius.circular(AppColors.radiusSmall),
+                      border: Border.all(color: AppColors.brand600),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const Icon(Icons.person,
-                            size: 14, color: AppColors.primaryDark),
+                            size: 14, color: Colors.white),
                         const SizedBox(width: 6),
                         ConstrainedBox(
                           constraints: const BoxConstraints(maxWidth: 140),
@@ -202,20 +195,20 @@ class _TopBar extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                               fontFamily: 'Mulish',
-                              fontSize: 11.5,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.primaryDark,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
                             ),
                           ),
                         ),
                         const SizedBox(width: 6),
                         Text(
                           patient.uhid,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: 'Mulish',
                             fontSize: 10,
                             fontWeight: FontWeight.w500,
-                            color: AppColors.primary,
+                            color: Colors.white.withValues(alpha: 0.85),
                           ),
                         ),
                       ],
@@ -225,18 +218,18 @@ class _TopBar extends StatelessWidget {
                 const SizedBox(width: 6),
                 InkWell(
                   onTap: _openEncounters,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(AppColors.radiusSmall),
                   child: Container(
                     padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
                       color: encounter == null
-                          ? AppColors.surfaceLight
+                          ? AppColors.surface
                           : AppColors.infoBg,
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(AppColors.radiusSmall),
                       border: Border.all(
                         color: encounter == null
-                            ? AppColors.border
+                            ? AppColors.borderStrong
                             : AppColors.infoRing,
                       ),
                     ),
@@ -260,8 +253,8 @@ class _TopBar extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               fontFamily: 'Mulish',
-                              fontSize: 11.5,
-                              fontWeight: FontWeight.w700,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
                               color: encounter == null
                                   ? AppColors.textSecondary
                                   : AppColors.info,
@@ -280,16 +273,16 @@ class _TopBar extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
-                color: AppColors.surfaceLight,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: AppColors.border),
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(AppColors.radiusSmall),
+                border: Border.all(color: AppColors.borderStrong),
               ),
               child: Text(
                 user.name,
                 style: const TextStyle(
                   fontFamily: 'Mulish',
                   fontSize: 11,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w500,
                   color: AppColors.textSecondary,
                 ),
               ),
@@ -299,7 +292,7 @@ class _TopBar extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
             decoration: BoxDecoration(
               color: AppColors.successBg,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(AppColors.radiusPill),
               border: Border.all(color: AppColors.successRing),
             ),
             child: const Text(
@@ -307,7 +300,7 @@ class _TopBar extends StatelessWidget {
               style: TextStyle(
                 fontFamily: 'Mulish',
                 fontSize: 10,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w600,
                 color: AppColors.success,
               ),
             ),
@@ -326,81 +319,66 @@ class _SidebarContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: AppColors.sidebar,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [AppColors.night2, AppColors.side2],
+        ),
+        border: Border(right: BorderSide(color: AppColors.darkBorder)),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 18),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Row(
                   children: [
-                    AppLogoMark(size: 22, onDark: true),
-                    SizedBox(width: 8),
+                    AppLogoMark(size: 32, onDark: true),
+                    SizedBox(width: 10),
                     Expanded(
-                      child: Text.rich(
-                        TextSpan(
-                          style: TextStyle(
-                            fontFamily: 'Mulish',
-                            fontSize: 15,
-                            fontWeight: FontWeight.w900,
-                            color: Colors.white,
-                            letterSpacing: -0.5,
-                          ),
-                          children: [
-                            TextSpan(
-                              text: 'A',
-                              style: TextStyle(color: AppColors.brand300),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'AGenomics',
+                            style: TextStyle(
+                              fontFamily: 'Mulish',
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.darkInk,
+                              letterSpacing: -0.2,
+                              height: 1.05,
                             ),
-                            TextSpan(text: 'Genomics'),
-                          ],
-                        ),
+                          ),
+                          SizedBox(height: 3),
+                          Text(
+                            'CLINICAL INTELLIGENCE',
+                            style: TextStyle(
+                              fontFamily: 'Mulish',
+                              fontSize: 9.5,
+                              color: AppColors.darkText3,
+                              letterSpacing: 0.16 * 9.5,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 2),
-                const Text(
-                  'CLAIM CHECKER · UAE',
-                  style: TextStyle(
-                    fontFamily: 'Mulish',
-                    fontSize: 9,
-                    color: AppColors.brand300,
-                    letterSpacing: 0.22 * 9,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: AppColors.brand300.withValues(alpha: 0.14),
-                    borderRadius: BorderRadius.circular(AppColors.radiusPill),
-                    border: Border.all(
-                      color: AppColors.brand300.withValues(alpha: 0.35),
-                    ),
-                  ),
-                  child: const Text(
-                    '● LIVE · Edge v3.0',
-                    style: TextStyle(
-                      fontFamily: 'Mulish',
-                      fontSize: 9,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.brand200,
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
-          const Divider(height: 1, color: Color(0x12FFFFFF)),
+          const Divider(height: 1, color: AppColors.darkBorder),
           Expanded(
             child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+              padding: const EdgeInsets.symmetric(vertical: 14),
               children: [
-                const _NavSection('Overview'),
+                const _NavSection('Platform'),
                 _NavItem(
                   icon: Icons.people_outline,
                   label: 'Patients',
@@ -557,9 +535,9 @@ class _SidebarContent extends StatelessWidget {
               ],
             ),
           ),
-          const Divider(height: 1, color: Color(0x0FFFFFFF)),
+          const Divider(height: 1, color: AppColors.darkBorder),
           Padding(
-            padding: const EdgeInsets.fromLTRB(14, 10, 14, 14),
+            padding: const EdgeInsets.fromLTRB(20, 14, 20, 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -580,24 +558,34 @@ class _SidebarContent extends StatelessWidget {
                     }
                     Get.offAllNamed(AppRoutes.login);
                   },
-                  borderRadius: BorderRadius.circular(AppColors.radius),
+                  borderRadius: BorderRadius.circular(AppColors.radiusSmall),
                   child: const Padding(
                     padding: EdgeInsets.symmetric(vertical: 6),
                     child: Row(
                       children: [
-                        Icon(Icons.logout, size: 14, color: Color(0x59FFFFFF)),
+                        Icon(Icons.logout, size: 14, color: AppColors.darkText4),
                         SizedBox(width: 8),
                         Text(
                           'Sign out',
                           style: TextStyle(
                             fontFamily: 'Mulish',
                             fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0x59FFFFFF),
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.darkText4,
                           ),
                         ),
                       ],
                     ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'POC v7.3 · Clinical Intelligence',
+                  style: TextStyle(
+                    fontFamily: 'Mulish',
+                    fontSize: 10,
+                    color: AppColors.darkText4,
+                    height: 1.5,
                   ),
                 ),
               ],
@@ -616,15 +604,15 @@ class _NavSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 10, 8, 4),
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 5),
       child: Text(
         label.toUpperCase(),
         style: const TextStyle(
           fontFamily: 'Mulish',
-          fontSize: 9,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 1,
-          color: Color(0x38FFFFFF),
+          fontSize: 9.5,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.15 * 9.5,
+          color: AppColors.darkText4,
         ),
       ),
     );
@@ -648,38 +636,49 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 1),
-      child: Material(
-        color: isActive ? AppColors.brand800 : Colors.transparent,
-        borderRadius: BorderRadius.circular(AppColors.radius),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(AppColors.radius),
-          hoverColor: AppColors.brand300.withValues(alpha: 0.12),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-            child: Row(
-              children: [
-                Icon(
-                  icon,
-                  size: 15,
-                  color: isActive ? Colors.white : const Color(0x8CFFFFFF),
-                ),
-                const SizedBox(width: 9),
-                Expanded(
-                  child: Text(
-                    label,
-                    style: TextStyle(
-                      fontFamily: 'Mulish',
-                      fontSize: 11,
-                      fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-                      color: isActive ? Colors.white : const Color(0x8CFFFFFF),
-                    ),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        hoverColor: Colors.white.withValues(alpha: 0.035),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 9),
+          decoration: BoxDecoration(
+            gradient: isActive
+                ? LinearGradient(
+                    colors: [
+                      AppColors.brand400.withValues(alpha: 0.10),
+                      Colors.transparent,
+                    ],
+                  )
+                : null,
+            border: Border(
+              left: BorderSide(
+                width: 2,
+                color: isActive ? AppColors.brand400 : Colors.transparent,
+              ),
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                icon,
+                size: 16,
+                color: isActive ? AppColors.brand400 : AppColors.darkText2,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontFamily: 'Mulish',
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: isActive ? AppColors.brand400 : AppColors.darkText2,
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -698,7 +697,7 @@ class _StatusRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = ok ? AppColors.brand300 : const Color(0xFFF87171);
+    final color = ok ? AppColors.brand400 : const Color(0xFFF45B69);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
@@ -715,7 +714,7 @@ class _StatusRow extends StatelessWidget {
             style: const TextStyle(
               fontFamily: 'Mulish',
               fontSize: 10,
-              color: Color(0x59FFFFFF),
+              color: AppColors.darkText4,
             ),
           ),
         ],

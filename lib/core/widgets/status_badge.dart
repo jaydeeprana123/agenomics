@@ -42,7 +42,7 @@ class StatusBadge extends StatelessWidget {
       ),
       StatusBadgeType.teal => (
         AppColors.primaryLight,
-        AppColors.brand700,
+        AppColors.brand600,
         AppColors.primaryMid,
       ),
       StatusBadgeType.off => (

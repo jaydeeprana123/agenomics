@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "538424652584",
+    "project_id": "agenomics-97b8c",
+    "storage_bucket": "agenomics-97b8c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:538424652584:android:3094266adbaf71955bd61d",
+        "android_client_info": {
+          "package_name": "com.ths.agenomics"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCnsq76uLba2LS3Df7KLWUpzcP7KVQwuno"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

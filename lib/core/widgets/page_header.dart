@@ -29,21 +29,21 @@ class PageHeader extends StatelessWidget {
                   title,
                   style: const TextStyle(
                     fontFamily: 'Mulish',
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -0.54,
-                    height: 1.1,
+                    fontSize: 22,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: -0.4,
+                    height: 1.12,
                     color: AppColors.text,
                   ),
                 ),
                 if (subtitle != null) ...[
-                  const SizedBox(height: 3),
+                  const SizedBox(height: 4),
                   Text(
                     subtitle!,
                     style: const TextStyle(
                       fontFamily: 'Mulish',
-                      fontSize: 12,
-                      color: AppColors.textSecondary,
+                      fontSize: 12.5,
+                      color: AppColors.textTertiary,
                     ),
                   ),
                 ],

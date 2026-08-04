@@ -413,7 +413,7 @@ class _CohortTable extends StatelessWidget {
                 ),
               ),
               const SizedBox(
-                width: 220,
+                width: 280,
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                   child: Text(
@@ -459,7 +459,7 @@ class _CohortTable extends StatelessWidget {
                       ),
                     ),
                     SizedBox(
-                      width: 220,
+                      width: 280,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 4,
@@ -690,56 +690,130 @@ class _ActionButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 0,
-      runSpacing: 0,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      children: [
-        IconButton(
-          tooltip: 'View',
-          visualDensity: VisualDensity.compact,
-          padding: EdgeInsets.zero,
-          constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
-          onPressed: () => controller.viewPatient(patient),
-          icon: const Icon(Icons.visibility_outlined, size: 18),
-          color: AppColors.info,
-        ),
-        IconButton(
-          tooltip: 'Edit',
-          visualDensity: VisualDensity.compact,
-          padding: EdgeInsets.zero,
-          constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
-          onPressed: () => controller.editPatient(patient),
-          icon: const Icon(Icons.edit_outlined, size: 18),
-          color: AppColors.primary,
-        ),
-        IconButton(
-          tooltip: 'Delete',
-          visualDensity: VisualDensity.compact,
-          padding: EdgeInsets.zero,
-          constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
-          onPressed: () => controller.deletePatient(patient),
-          icon: const Icon(Icons.delete_outline, size: 18),
-          color: AppColors.error,
-        ),
-        TextButton(
-          onPressed: () => controller.continuePatient(patient),
-          style: TextButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            minimumSize: const Size(0, 36),
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            foregroundColor: AppColors.primaryDark,
+    return Obx(() {
+      final consentStatus = controller.consent.statusFor(patient.id);
+      final creating = controller.consent.isCreating(patient.id);
+
+      return Wrap(
+        spacing: 0,
+        runSpacing: 0,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          IconButton(
+            tooltip: 'View',
+            visualDensity: VisualDensity.compact,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+            onPressed: () => controller.viewPatient(patient),
+            icon: const Icon(Icons.visibility_outlined, size: 18),
+            color: AppColors.info,
           ),
-          child: const Text(
-            'Continue',
-            style: TextStyle(
-              fontFamily: 'Mulish',
-              fontWeight: FontWeight.w700,
-              fontSize: 12,
+          IconButton(
+            tooltip: 'Edit',
+            visualDensity: VisualDensity.compact,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+            onPressed: () => controller.editPatient(patient),
+            icon: const Icon(Icons.edit_outlined, size: 18),
+            color: AppColors.primary,
+          ),
+          IconButton(
+            tooltip: 'Delete',
+            visualDensity: VisualDensity.compact,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+            onPressed: () => controller.deletePatient(patient),
+            icon: const Icon(Icons.delete_outline, size: 18),
+            color: AppColors.error,
+          ),
+          TextButton(
+            onPressed: creating ? null : () => controller.requestConsent(patient),
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              minimumSize: const Size(0, 36),
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              foregroundColor: AppColors.primaryDark,
+            ),
+            child: creating
+                ? const SizedBox(
+                    width: 14,
+                    height: 14,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text(
+                        'Consent',
+                        style: TextStyle(
+                          fontFamily: 'Mulish',
+                          fontWeight: FontWeight.w700,
+                          fontSize: 12,
+                        ),
+                      ),
+                      if (consentStatus != null) ...[
+                        const SizedBox(width: 4),
+                        _ConsentStatusDot(status: consentStatus.status),
+                      ],
+                    ],
+                  ),
+          ),
+          TextButton(
+            onPressed: () => controller.continuePatient(patient),
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              minimumSize: const Size(0, 36),
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              foregroundColor: AppColors.primaryDark,
+            ),
+            child: const Text(
+              'Continue',
+              style: TextStyle(
+                fontFamily: 'Mulish',
+                fontWeight: FontWeight.w700,
+                fontSize: 12,
+              ),
             ),
           ),
+        ],
+      );
+    });
+  }
+}
+
+class _ConsentStatusDot extends StatelessWidget {
+  final String status;
+
+  const _ConsentStatusDot({required this.status});
+
+  @override
+  Widget build(BuildContext context) {
+    final color = switch (status) {
+      'approved' => AppColors.success,
+      'declined' => AppColors.warning,
+      _ => AppColors.info,
+    };
+    final label = switch (status) {
+      'approved' => 'OK',
+      'declined' => 'No',
+      _ => '…',
+    };
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.withValues(alpha: 0.45)),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontFamily: 'Mulish',
+          fontSize: 9,
+          fontWeight: FontWeight.w800,
+          color: color,
         ),
-      ],
+      ),
     );
   }
 }

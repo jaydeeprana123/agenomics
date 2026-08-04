@@ -18,6 +18,9 @@ import '../../modules/upload_documents/bindings/upload_documents_binding.dart';
 import '../../modules/upload_documents/views/upload_documents_view.dart';
 import '../../modules/vcf_file_run/bindings/vcf_file_run_binding.dart';
 import '../../modules/vcf_file_run/views/vcf_file_run_view.dart';
+import '../../modules/consent/bindings/consent_binding.dart';
+import '../../modules/consent/views/consent_form_view.dart';
+import '../../modules/consent/views/consent_inbox_view.dart';
 import 'app_routes.dart';
 
 class AppPages {
@@ -73,6 +76,16 @@ class AppPages {
       name: AppRoutes.vcfFileRun,
       page: () => const VcfFileRunView(),
       binding: VcfFileRunBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.consentInbox,
+      page: () => const ConsentInboxView(),
+      binding: ConsentInboxBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.consentForm,
+      page: () => const ConsentFormView(),
+      binding: ConsentFormBinding(),
     ),
   ];
 }

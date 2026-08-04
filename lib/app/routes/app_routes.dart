@@ -9,4 +9,6 @@ abstract class AppRoutes {
   static const String genomicsAnalysis = '/genomics-analysis';
   static const String medicines = '/medicines';
   static const String vcfFileRun = '/vcf-file-run';
+  static const String consentInbox = '/consent';
+  static const String consentForm = '/consent/form';
 }

@@ -36,11 +36,18 @@ class _AppCardState extends State<AppCard> {
           ? Matrix4.translationValues(0, -4, 0)
           : Matrix4.identity(),
       decoration: BoxDecoration(
-        color: widget.color ?? AppColors.surface,
+        color: widget.color,
+        gradient: widget.color == null
+            ? const LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [AppColors.surface, Color(0xFFF8FAFC)],
+              )
+            : null,
         borderRadius: BorderRadius.circular(AppColors.radiusLarge),
         border: Border.all(
           color: _hovered && widget.onTap != null
-              ? AppColors.brand300
+              ? AppColors.brand600.withValues(alpha: 0.45)
               : AppColors.border,
         ),
         boxShadow: AppColors.shadowCard,

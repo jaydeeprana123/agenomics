@@ -32,7 +32,7 @@ class EmptyState extends StatelessWidget {
               height: 64,
               decoration: BoxDecoration(
                 color: AppColors.primaryLight,
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(AppColors.radius),
               ),
               child: Icon(icon, size: 32, color: AppColors.primary),
             ),
@@ -43,7 +43,7 @@ class EmptyState extends StatelessWidget {
               style: const TextStyle(
                 fontFamily: 'Mulish',
                 fontSize: 16,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w600,
                 color: AppColors.text,
               ),
             ),

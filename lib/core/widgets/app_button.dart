@@ -29,15 +29,15 @@ class AppButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final (bg, fg, border, shadows) = switch (variant) {
       AppButtonVariant.primary => (
-          AppColors.primary,
+          AppColors.brand600,
           Colors.white,
-          AppColors.primary,
+          AppColors.brand600,
           AppColors.shadowButton,
         ),
       AppButtonVariant.secondary => (
           AppColors.surface,
-          AppColors.text,
-          AppColors.border,
+          AppColors.textSecondary,
+          AppColors.borderStrong,
           const <BoxShadow>[],
         ),
       AppButtonVariant.danger => (
@@ -53,6 +53,8 @@ class AppButton extends StatelessWidget {
           const <BoxShadow>[],
         ),
     };
+
+    final radius = BorderRadius.circular(AppColors.radiusSmall);
 
     final child = Row(
       mainAxisSize: expanded ? MainAxisSize.max : MainAxisSize.min,
@@ -77,7 +79,7 @@ class AppButton extends StatelessWidget {
             style: TextStyle(
               fontFamily: AppTheme.fontFamily,
               fontSize: 13,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
               color: fg,
             ),
           ),
@@ -90,22 +92,22 @@ class AppButton extends StatelessWidget {
       width: expanded ? double.infinity : null,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(AppColors.radiusPill),
+          borderRadius: radius,
           boxShadow: onPressed == null || isLoading ? null : shadows,
         ),
         child: Material(
           color: bg,
-          borderRadius: BorderRadius.circular(AppColors.radiusPill),
+          borderRadius: radius,
           child: InkWell(
             onTap: isLoading ? null : onPressed,
-            borderRadius: BorderRadius.circular(AppColors.radiusPill),
+            borderRadius: radius,
             hoverColor: variant == AppButtonVariant.primary
-                ? AppColors.brand800.withValues(alpha: 0.2)
+                ? AppColors.brand700.withValues(alpha: 0.2)
                 : null,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(AppColors.radiusPill),
+                borderRadius: radius,
                 border: Border.all(color: border),
               ),
               alignment: Alignment.center,
