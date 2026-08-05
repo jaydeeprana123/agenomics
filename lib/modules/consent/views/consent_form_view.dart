@@ -49,18 +49,21 @@ class ConsentFormView extends GetView<ConsentFormController> {
                       const SizedBox(height: 28),
                       const _PurposeSectionHeader(),
                       const SizedBox(height: 8),
-                      ...ConsentPurposeItem.all.map((item) {
-                        return Obx(() {
-                          final on = item.required
-                              ? true
-                              : controller.getValue(item.key);
-                          return _PurposeRow(
-                            item: item,
-                            value: on,
-                            enabled: !locked && !item.required,
-                            onChanged: (v) => controller.setValue(item.key, v),
-                          );
-                        });
+                      Obx(() {
+                        // Read purposes once so every row rebuilds correctly.
+                        final purposes = controller.purposes.value;
+                        return Column(
+                          children: [
+                            for (final item in ConsentPurposeItem.all)
+                              _PurposeRow(
+                                item: item,
+                                value: _purposeValue(purposes, item.key),
+                                enabled: !locked && !item.required,
+                                onChanged: (v) =>
+                                    controller.setValue(item.key, v),
+                              ),
+                          ],
+                        );
                       }),
                       const SizedBox(height: 28),
                       _SignatureSection(controller: controller, locked: locked),
@@ -74,6 +77,27 @@ class ConsentFormView extends GetView<ConsentFormController> {
         );
       }),
     );
+  }
+}
+
+bool _purposeValue(ConsentPurposes purposes, String key) {
+  switch (key) {
+    case 'identityVerification':
+      return purposes.identityVerification;
+    case 'hieRecordRetrieval':
+      return purposes.hieRecordRetrieval;
+    case 'pharmacogenomicProcessing':
+      return purposes.pharmacogenomicProcessing;
+    case 'germlineInterpretation':
+      return purposes.germlineInterpretation;
+    case 'claimEvidenceAttachment':
+      return purposes.claimEvidenceAttachment;
+    case 'secondaryResearchUse':
+      return purposes.secondaryResearchUse;
+    case 'familyCascadeDisclosure':
+      return purposes.familyCascadeDisclosure;
+    default:
+      return false;
   }
 }
 

@@ -5,11 +5,10 @@ class ApiEndpoints {
   ApiEndpoints._();
 
   /// Real API host (Windows / Android / iOS).
-  // static const String remoteBaseUrl =
-  //     'https://apis.agenomicsapi.com';
+  static const String remoteBaseUrl = 'https://apis.agenomicsapi.com';
 
-  static const String remoteBaseUrl =
-      'https://3a1e-115-246-26-2.ngrok-free.app';
+  // static const String remoteBaseUrl =
+  //     'https://3a1e-115-246-26-2.ngrok-free.app';
 
   /// Local bridge for Flutter Web only — browsers block cross-origin
   /// calls when the API has no CORS headers.
