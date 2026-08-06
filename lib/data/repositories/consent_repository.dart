@@ -1,21 +1,14 @@
-import 'dart:typed_data';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 
 import '../models/consent_request_model.dart';
 import '../models/patient_model.dart';
 
-/// Real-time consent requests backed by Firestore + Storage signatures.
+/// Real-time consent requests backed by Firestore only (no Storage / images).
 class ConsentRepository {
-  ConsentRepository({
-    FirebaseFirestore? firestore,
-    FirebaseStorage? storage,
-  })  : _db = firestore ?? FirebaseFirestore.instance,
-        _storage = storage ?? FirebaseStorage.instance;
+  ConsentRepository({FirebaseFirestore? firestore})
+      : _db = firestore ?? FirebaseFirestore.instance;
 
   final FirebaseFirestore _db;
-  final FirebaseStorage _storage;
 
   static const String collection = 'consent_requests';
   static const String devicesCollection = 'consent_devices';
@@ -118,37 +111,20 @@ class ConsentRepository {
     return result;
   }
 
-  /// Upload PNG signature bytes and return the download URL.
-  Future<String> uploadSignature({
-    required String requestId,
-    required String role,
-    required Uint8List bytes,
-  }) async {
-    final ref = _storage
-        .ref()
-        .child('consent_signatures')
-        .child(requestId)
-        .child('$role.png');
-    await ref.putData(
-      bytes,
-      SettableMetadata(contentType: 'image/png'),
-    );
-    return ref.getDownloadURL();
-  }
-
+  /// Approve consent — Firestore data only (no images).
   Future<void> submitConsent({
     required String requestId,
     required ConsentPurposes purposes,
-    String? patientSignatureUrl,
-    String? clinicianSignatureUrl,
     String? clinicianName,
+    bool patientSigned = false,
+    bool clinicianSigned = false,
   }) async {
     await _col.doc(requestId).update({
       'status': ConsentStatus.approved,
       'purposes': purposes.toJson(),
-      'patientSignatureUrl': patientSignatureUrl,
-      'clinicianSignatureUrl': clinicianSignatureUrl,
       'clinicianName': clinicianName,
+      'patientSigned': patientSigned,
+      'clinicianSigned': clinicianSigned,
       'updatedAt': FieldValue.serverTimestamp(),
       'completedAt': FieldValue.serverTimestamp(),
     });

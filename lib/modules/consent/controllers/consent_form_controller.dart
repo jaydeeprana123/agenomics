@@ -1,9 +1,6 @@
 import 'dart:async';
-import 'dart:typed_data';
-import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:signature/signature.dart';
 
@@ -25,9 +22,6 @@ class ConsentFormController extends GetxController {
   final clinicianName = ''.obs;
   final isSubmitting = false.obs;
   final isLoading = true.obs;
-
-  final patientPadKey = GlobalKey();
-  final clinicianPadKey = GlobalKey();
 
   StreamSubscription<ConsentRequestModel?>? _sub;
 
@@ -142,54 +136,19 @@ class ConsentFormController extends GetxController {
       return;
     }
 
-    if (patientSignature.isEmpty) {
-      Get.snackbar(
-        'Signature required',
-        'Please capture the patient signature before submitting.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColors.warningBg,
-        colorText: AppColors.warning,
-      );
-      return;
-    }
-
     isSubmitting.value = true;
     try {
-      // Identity verification is always required.
       final finalPurposes =
           purposes.value.copyWith(identityVerification: true);
-
-      String? patientUrl;
-      String? clinicianUrl;
-
-      final patientBytes = await patientSignature.toPngBytes();
-      if (patientBytes != null) {
-        patientUrl = await _repository.uploadSignature(
-          requestId: current.id,
-          role: 'patient',
-          bytes: patientBytes,
-        );
-      }
-
-      if (clinicianSignature.isNotEmpty) {
-        final clinicianBytes = await clinicianSignature.toPngBytes();
-        if (clinicianBytes != null) {
-          clinicianUrl = await _repository.uploadSignature(
-            requestId: current.id,
-            role: 'clinician',
-            bytes: clinicianBytes,
-          );
-        }
-      }
 
       await _repository.submitConsent(
         requestId: current.id,
         purposes: finalPurposes,
-        patientSignatureUrl: patientUrl,
-        clinicianSignatureUrl: clinicianUrl,
         clinicianName: clinicianName.value.trim().isEmpty
             ? null
             : clinicianName.value.trim(),
+        patientSigned: patientSignature.isNotEmpty,
+        clinicianSigned: clinicianSignature.isNotEmpty,
       );
 
       Get.snackbar(
@@ -265,15 +224,6 @@ class ConsentFormController extends GetxController {
     } finally {
       isSubmitting.value = false;
     }
-  }
-
-  Future<Uint8List?> capturePad(GlobalKey key) async {
-    final boundary =
-        key.currentContext?.findRenderObject() as RenderRepaintBoundary?;
-    if (boundary == null) return null;
-    final image = await boundary.toImage(pixelRatio: 2);
-    final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-    return byteData?.buffer.asUint8List();
   }
 
   @override
