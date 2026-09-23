@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:signature/signature.dart';
 
+import '../../../app/routes/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/models/consent_request_model.dart';
 import '../../../data/repositories/consent_repository.dart';
@@ -30,12 +31,12 @@ class ConsentFormController extends GetxController {
     super.onInit();
     patientSignature = SignatureController(
       penStrokeWidth: 2.4,
-      penColor: AppColors.brand300,
+      penColor: AppColors.primary,
       exportBackgroundColor: Colors.transparent,
     );
     clinicianSignature = SignatureController(
       penStrokeWidth: 2.4,
-      penColor: AppColors.darkInk,
+      penColor: AppColors.ink,
       exportBackgroundColor: Colors.transparent,
     );
 
@@ -78,28 +79,6 @@ class ConsentFormController extends GetxController {
     });
   }
 
-  bool getValue(String key) {
-    final p = purposes.value;
-    switch (key) {
-      case 'identityVerification':
-        return p.identityVerification;
-      case 'hieRecordRetrieval':
-        return p.hieRecordRetrieval;
-      case 'pharmacogenomicProcessing':
-        return p.pharmacogenomicProcessing;
-      case 'germlineInterpretation':
-        return p.germlineInterpretation;
-      case 'claimEvidenceAttachment':
-        return p.claimEvidenceAttachment;
-      case 'secondaryResearchUse':
-        return p.secondaryResearchUse;
-      case 'familyCascadeDisclosure':
-        return p.familyCascadeDisclosure;
-      default:
-        return false;
-    }
-  }
-
   void setValue(String key, bool value) {
     final p = purposes.value;
     purposes.value = switch (key) {
@@ -121,9 +100,50 @@ class ConsentFormController extends GetxController {
     }
   }
 
-  Future<void> submit() async {
+  void _goToConsentList([String? result]) {
+    if (Get.isSnackbarOpen) {
+      Get.closeAllSnackbars();
+    }
+
+    if (Get.key.currentState?.canPop() == true) {
+      Get.back(result: result);
+      return;
+    }
+    Get.offAllNamed(AppRoutes.consentInbox);
+  }
+
+  void _showSuccessAfterNavigation(String message) {
+    // Snackbar must show after navigation — Get.snackbar before Get.back
+    // is treated as a route and Get.back only dismisses the snackbar.
+    Future.microtask(() {
+      Get.snackbar(
+        'Success',
+        message,
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColors.successBg,
+        colorText: AppColors.success,
+        margin: const EdgeInsets.all(12),
+        duration: const Duration(seconds: 3),
+      );
+    });
+  }
+
+  /// Accept — signature required for validation only (not uploaded).
+  Future<void> accept() async {
     final current = request.value;
     if (current == null || !current.isPending) return;
+
+    if (patientSignature.isEmpty) {
+      Get.snackbar(
+        'Signature required',
+        'Please add your signature before submitting the consent form.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColors.warningBg,
+        colorText: AppColors.warning,
+        margin: const EdgeInsets.all(12),
+      );
+      return;
+    }
 
     if (!purposes.value.identityVerification) {
       Get.snackbar(
@@ -132,6 +152,7 @@ class ConsentFormController extends GetxController {
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: AppColors.errorBg,
         colorText: AppColors.error,
+        margin: const EdgeInsets.all(12),
       );
       return;
     }
@@ -147,72 +168,36 @@ class ConsentFormController extends GetxController {
         clinicianName: clinicianName.value.trim().isEmpty
             ? null
             : clinicianName.value.trim(),
-        patientSigned: patientSignature.isNotEmpty,
+        patientSigned: true,
         clinicianSigned: clinicianSignature.isNotEmpty,
       );
 
-      Get.snackbar(
-        'Consent approved',
-        'Status updated to approved in real time.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColors.successBg,
-        colorText: AppColors.success,
-      );
-      Get.back(result: ConsentStatus.approved);
+      _goToConsentList(ConsentStatus.approved);
+      _showSuccessAfterNavigation('Consent accepted successfully.');
     } catch (e) {
       Get.snackbar(
-        'Submit failed',
+        'Accept failed',
         e.toString().replaceFirst('Exception: ', ''),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: AppColors.errorBg,
         colorText: AppColors.error,
+        margin: const EdgeInsets.all(12),
       );
     } finally {
-      isSubmitting.value = false;
+      if (!isClosed) isSubmitting.value = false;
     }
   }
 
+  /// Decline — signature not required.
   Future<void> decline() async {
     final current = request.value;
     if (current == null || !current.isPending) return;
 
-    final confirmed = await Get.dialog<bool>(
-      AlertDialog(
-        backgroundColor: AppColors.panel,
-        title: const Text(
-          'Decline all purposes?',
-          style: TextStyle(color: AppColors.darkInk, fontFamily: 'Mulish'),
-        ),
-        content: const Text(
-          'This will mark the consent request as declined. Treatment is unaffected.',
-          style: TextStyle(color: AppColors.darkText2, fontFamily: 'Mulish'),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(result: false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Get.back(result: true),
-            style: TextButton.styleFrom(foregroundColor: AppColors.error),
-            child: const Text('Decline'),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true) return;
-
     isSubmitting.value = true;
     try {
       await _repository.declineConsent(current.id);
-      Get.snackbar(
-        'Consent declined',
-        'Status updated to declined in real time.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColors.warningBg,
-        colorText: AppColors.warning,
-      );
-      Get.back(result: ConsentStatus.declined);
+      _goToConsentList(ConsentStatus.declined);
+      _showSuccessAfterNavigation('Consent declined successfully.');
     } catch (e) {
       Get.snackbar(
         'Decline failed',
@@ -220,9 +205,10 @@ class ConsentFormController extends GetxController {
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: AppColors.errorBg,
         colorText: AppColors.error,
+        margin: const EdgeInsets.all(12),
       );
     } finally {
-      isSubmitting.value = false;
+      if (!isClosed) isSubmitting.value = false;
     }
   }
 

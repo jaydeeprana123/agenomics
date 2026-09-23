@@ -14,7 +14,7 @@ class ConsentInboxView extends GetView<ConsentInboxController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.night,
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -35,7 +35,7 @@ class ConsentInboxView extends GetView<ConsentInboxController> {
                             fontFamily: 'Mulish',
                             fontSize: 20,
                             fontWeight: FontWeight.w800,
-                            color: AppColors.darkInk,
+                            color: AppColors.ink,
                           ),
                         ),
                         Text(
@@ -44,7 +44,7 @@ class ConsentInboxView extends GetView<ConsentInboxController> {
                             fontFamily: 'Mulish',
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
-                            color: AppColors.darkText3,
+                            color: AppColors.textSecondary,
                           ),
                         ),
                       ],
@@ -54,16 +54,14 @@ class ConsentInboxView extends GetView<ConsentInboxController> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
-                      color: AppColors.brand400.withValues(alpha: 0.15),
+                      color: AppColors.primaryLight,
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: AppColors.brand400.withValues(alpha: 0.4),
-                      ),
+                      border: Border.all(color: AppColors.primaryMid),
                     ),
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.circle, size: 8, color: AppColors.brand400),
+                        Icon(Icons.circle, size: 8, color: AppColors.primary),
                         SizedBox(width: 6),
                         Text(
                           'LIVE',
@@ -71,7 +69,7 @@ class ConsentInboxView extends GetView<ConsentInboxController> {
                             fontFamily: 'Mulish',
                             fontSize: 11,
                             fontWeight: FontWeight.w800,
-                            color: AppColors.brand400,
+                            color: AppColors.primary,
                             letterSpacing: 0.6,
                           ),
                         ),
@@ -85,7 +83,7 @@ class ConsentInboxView extends GetView<ConsentInboxController> {
               child: Obx(() {
                 if (controller.isLoading.value && controller.pending.isEmpty) {
                   return const Center(
-                    child: CircularProgressIndicator(color: AppColors.brand400),
+                    child: CircularProgressIndicator(color: AppColors.primary),
                   );
                 }
 
@@ -99,7 +97,7 @@ class ConsentInboxView extends GetView<ConsentInboxController> {
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           fontFamily: 'Mulish',
-                          color: AppColors.darkText2,
+                          color: AppColors.textSecondary,
                         ),
                       ),
                     ),
@@ -116,7 +114,7 @@ class ConsentInboxView extends GetView<ConsentInboxController> {
                           Icon(
                             Icons.how_to_reg_outlined,
                             size: 48,
-                            color: AppColors.darkText4,
+                            color: AppColors.textMuted,
                           ),
                           SizedBox(height: 16),
                           Text(
@@ -125,7 +123,7 @@ class ConsentInboxView extends GetView<ConsentInboxController> {
                               fontFamily: 'Mulish',
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.darkInk,
+                              color: AppColors.ink,
                             ),
                           ),
                           SizedBox(height: 8),
@@ -135,7 +133,7 @@ class ConsentInboxView extends GetView<ConsentInboxController> {
                             style: TextStyle(
                               fontFamily: 'Mulish',
                               fontSize: 13,
-                              color: AppColors.darkText3,
+                              color: AppColors.textSecondary,
                             ),
                           ),
                         ],
@@ -181,16 +179,20 @@ class _ConsentRequestTile extends StatelessWidget {
         : 'Just now';
 
     return Material(
-      color: AppColors.panel,
-      borderRadius: BorderRadius.circular(12),
+      color: AppColors.surface,
+      borderRadius: BorderRadius.circular(AppColors.radius),
+      elevation: 0,
+      shadowColor: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppColors.radius),
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.darkBorder),
+            borderRadius: BorderRadius.circular(AppColors.radius),
+            border: Border.all(color: AppColors.border),
+            boxShadow: AppColors.shadowCard,
+            color: AppColors.surface,
           ),
           child: Row(
             children: [
@@ -199,7 +201,7 @@ class _ConsentRequestTile extends StatelessWidget {
                 height: 44,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: AppColors.brand400.withValues(alpha: 0.15),
+                  color: AppColors.primaryLight,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
@@ -210,7 +212,7 @@ class _ConsentRequestTile extends StatelessWidget {
                     fontFamily: 'Mulish',
                     fontWeight: FontWeight.w800,
                     fontSize: 18,
-                    color: AppColors.brand400,
+                    color: AppColors.primary,
                   ),
                 ),
               ),
@@ -225,7 +227,7 @@ class _ConsentRequestTile extends StatelessWidget {
                         fontFamily: 'Mulish',
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.darkInk,
+                        color: AppColors.ink,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -234,7 +236,7 @@ class _ConsentRequestTile extends StatelessWidget {
                       style: const TextStyle(
                         fontFamily: 'Mulish',
                         fontSize: 12,
-                        color: AppColors.darkText3,
+                        color: AppColors.textSecondary,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -243,7 +245,7 @@ class _ConsentRequestTile extends StatelessWidget {
                       style: const TextStyle(
                         fontFamily: 'Mulish',
                         fontSize: 11,
-                        color: AppColors.darkText4,
+                        color: AppColors.textMuted,
                       ),
                     ),
                   ],
@@ -251,7 +253,7 @@ class _ConsentRequestTile extends StatelessWidget {
               ),
               const Icon(
                 Icons.chevron_right,
-                color: AppColors.darkText3,
+                color: AppColors.textSecondary,
               ),
             ],
           ),

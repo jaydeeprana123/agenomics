@@ -6,18 +6,18 @@ import '../../../core/theme/app_colors.dart';
 import '../../../data/models/consent_request_model.dart';
 import '../controllers/consent_form_controller.dart';
 
-/// Genomic Processing Consent screen — matches the bilingual dark teal design.
+/// Genomic Processing Consent screen — light bilingual layout.
 class ConsentFormView extends GetView<ConsentFormController> {
   const ConsentFormView({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.night,
+      backgroundColor: AppColors.background,
       body: Obx(() {
         if (controller.isLoading.value) {
           return const Center(
-            child: CircularProgressIndicator(color: AppColors.brand400),
+            child: CircularProgressIndicator(color: AppColors.primary),
           );
         }
 
@@ -28,7 +28,7 @@ class ConsentFormView extends GetView<ConsentFormController> {
               'Consent request not found',
               style: TextStyle(
                 fontFamily: 'Mulish',
-                color: AppColors.darkText2,
+                color: AppColors.textSecondary,
               ),
             ),
           );
@@ -41,31 +41,45 @@ class ConsentFormView extends GetView<ConsentFormController> {
             children: [
               Expanded(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(28, 28, 28, 16),
+                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       _Header(request: req),
-                      const SizedBox(height: 28),
-                      const _PurposeSectionHeader(),
-                      const SizedBox(height: 8),
-                      Obx(() {
-                        // Read purposes once so every row rebuilds correctly.
-                        final purposes = controller.purposes.value;
-                        return Column(
+                      const SizedBox(height: 24),
+                      Container(
+                        padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
+                        decoration: BoxDecoration(
+                          color: AppColors.surface,
+                          borderRadius:
+                              BorderRadius.circular(AppColors.radius),
+                          border: Border.all(color: AppColors.border),
+                          boxShadow: AppColors.shadowCard,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            for (final item in ConsentPurposeItem.all)
-                              _PurposeRow(
-                                item: item,
-                                value: _purposeValue(purposes, item.key),
-                                enabled: !locked && !item.required,
-                                onChanged: (v) =>
-                                    controller.setValue(item.key, v),
-                              ),
+                            const _PurposeSectionHeader(),
+                            const SizedBox(height: 4),
+                            Obx(() {
+                              final purposes = controller.purposes.value;
+                              return Column(
+                                children: [
+                                  for (final item in ConsentPurposeItem.all)
+                                    _PurposeRow(
+                                      item: item,
+                                      value: _purposeValue(purposes, item.key),
+                                      enabled: !locked && !item.required,
+                                      onChanged: (v) =>
+                                          controller.setValue(item.key, v),
+                                    ),
+                                ],
+                              );
+                            }),
                           ],
-                        );
-                      }),
-                      const SizedBox(height: 28),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
                       _SignatureSection(controller: controller, locked: locked),
                     ],
                   ),
@@ -119,9 +133,9 @@ class _Header extends StatelessWidget {
                 'Genomic Processing Consent',
                 style: TextStyle(
                   fontFamily: 'Mulish',
-                  fontSize: 26,
+                  fontSize: 24,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.darkInk,
+                  color: AppColors.ink,
                   height: 1.15,
                 ),
               ),
@@ -132,7 +146,7 @@ class _Header extends StatelessWidget {
                   fontFamily: 'Mulish',
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.darkText3,
+                  color: AppColors.textSecondary,
                 ),
               ),
             ],
@@ -149,9 +163,9 @@ class _Header extends StatelessWidget {
                 textDirection: TextDirection.rtl,
                 style: TextStyle(
                   fontFamily: 'Mulish',
-                  fontSize: 22,
+                  fontSize: 20,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.darkInk,
+                  color: AppColors.ink,
                   height: 1.25,
                 ),
               ),
@@ -163,7 +177,7 @@ class _Header extends StatelessWidget {
                   fontFamily: 'Mulish',
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.darkText3,
+                  color: AppColors.textSecondary,
                 ),
               ),
             ],
@@ -189,7 +203,7 @@ class _PurposeSectionHeader extends StatelessWidget {
               fontSize: 11,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.8,
-              color: AppColors.darkText4,
+              color: AppColors.textMuted,
             ),
           ),
         ),
@@ -200,7 +214,7 @@ class _PurposeSectionHeader extends StatelessWidget {
             fontFamily: 'Mulish',
             fontSize: 13,
             fontWeight: FontWeight.w600,
-            color: AppColors.darkText3,
+            color: AppColors.textSecondary,
           ),
         ),
       ],
@@ -224,10 +238,10 @@ class _PurposeRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 14),
+      padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: const BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: AppColors.darkBorder, width: 1),
+          bottom: BorderSide(color: AppColors.borderLight, width: 1),
         ),
       ),
       child: Row(
@@ -250,7 +264,7 @@ class _PurposeRow extends StatelessWidget {
                     fontFamily: 'Mulish',
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.darkInk,
+                    color: AppColors.ink,
                   ),
                 ),
                 const SizedBox(height: 3),
@@ -260,7 +274,7 @@ class _PurposeRow extends StatelessWidget {
                     fontFamily: 'Mulish',
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
-                    color: AppColors.darkText3,
+                    color: AppColors.textSecondary,
                     height: 1.35,
                   ),
                 ),
@@ -278,7 +292,7 @@ class _PurposeRow extends StatelessWidget {
                 fontFamily: 'Mulish',
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: AppColors.darkText2,
+                color: AppColors.textSecondary,
               ),
             ),
           ),
@@ -310,7 +324,7 @@ class _ConsentSwitch extends StatelessWidget {
         padding: const EdgeInsets.all(3),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
-          color: value ? AppColors.brand400 : AppColors.darkBorder2,
+          color: value ? AppColors.primary : AppColors.borderStrong,
         ),
         child: AnimatedAlign(
           duration: const Duration(milliseconds: 180),
@@ -418,7 +432,7 @@ class _SignaturePad extends StatelessWidget {
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 0.6,
-                  color: AppColors.darkText4,
+                  color: AppColors.textMuted,
                 ),
               ),
             ),
@@ -426,7 +440,7 @@ class _SignaturePad extends StatelessWidget {
               TextButton(
                 onPressed: onClear,
                 style: TextButton.styleFrom(
-                  foregroundColor: AppColors.darkText3,
+                  foregroundColor: AppColors.textSecondary,
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                   minimumSize: const Size(0, 28),
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -442,17 +456,18 @@ class _SignaturePad extends StatelessWidget {
         Container(
           height: 120,
           decoration: BoxDecoration(
-            color: AppColors.panel.withValues(alpha: 0.55),
-            borderRadius: BorderRadius.circular(10),
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(AppColors.radius),
+            boxShadow: AppColors.shadowCard,
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(9),
+            borderRadius: BorderRadius.circular(AppColors.radius - 1),
             child: Stack(
               children: [
                 CustomPaint(
                   painter: _DashedBorderPainter(
-                    color: AppColors.darkBorder2,
-                    radius: 9,
+                    color: AppColors.borderStrong,
+                    radius: AppColors.radius - 1,
                   ),
                   child: const SizedBox.expand(),
                 ),
@@ -474,7 +489,7 @@ class _SignaturePad extends StatelessWidget {
                         fontSize: 22,
                         fontWeight: FontWeight.w400,
                         fontStyle: FontStyle.italic,
-                        color: AppColors.darkText4.withValues(alpha: 0.85),
+                        color: AppColors.textMuted.withValues(alpha: 0.85),
                       ),
                     ),
                   ),
@@ -536,10 +551,10 @@ class _Footer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(28, 12, 28, 20),
+      padding: const EdgeInsets.fromLTRB(24, 12, 24, 20),
       decoration: const BoxDecoration(
-        border: Border(top: BorderSide(color: AppColors.darkBorder)),
-        color: AppColors.night,
+        color: AppColors.surface,
+        border: Border(top: BorderSide(color: AppColors.border)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -553,16 +568,16 @@ class _Footer extends StatelessWidget {
                 SizedBox(
                   height: 48,
                   child: ElevatedButton(
-                    onPressed: locked ? null : controller.submit,
+                    onPressed: locked ? null : controller.accept,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.brand400,
+                      backgroundColor: AppColors.primary,
                       disabledBackgroundColor:
-                          AppColors.brand400.withValues(alpha: 0.35),
-                      foregroundColor: AppColors.onTeal,
+                          AppColors.primary.withValues(alpha: 0.35),
+                      foregroundColor: Colors.white,
                       elevation: 0,
                       padding: const EdgeInsets.symmetric(horizontal: 28),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(AppColors.radius),
                       ),
                     ),
                     child: Obx(() {
@@ -572,12 +587,12 @@ class _Footer extends StatelessWidget {
                           height: 22,
                           child: CircularProgressIndicator(
                             strokeWidth: 2.2,
-                            color: AppColors.onTeal,
+                            color: Colors.white,
                           ),
                         );
                       }
                       return const Text(
-                        'Submit consent',
+                        'Accept',
                         style: TextStyle(
                           fontFamily: 'Mulish',
                           fontSize: 15,
@@ -592,15 +607,15 @@ class _Footer extends StatelessWidget {
                   child: OutlinedButton(
                     onPressed: locked ? null : controller.decline,
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.darkInk,
-                      side: const BorderSide(color: AppColors.darkBorder2),
+                      foregroundColor: AppColors.ink,
+                      side: const BorderSide(color: AppColors.borderStrong),
                       padding: const EdgeInsets.symmetric(horizontal: 22),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(AppColors.radius),
                       ),
                     ),
                     child: const Text(
-                      'Patient declines all',
+                      'Decline',
                       style: TextStyle(
                         fontFamily: 'Mulish',
                         fontSize: 14,
@@ -613,32 +628,34 @@ class _Footer extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 16),
-          const Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                'Refusing any purpose does not affect treatment',
-                textAlign: TextAlign.right,
-                style: TextStyle(
-                  fontFamily: 'Mulish',
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.darkText4,
+          const Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  'Refusing any purpose does not affect treatment',
+                  textAlign: TextAlign.right,
+                  style: TextStyle(
+                    fontFamily: 'Mulish',
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textMuted,
+                  ),
                 ),
-              ),
-              SizedBox(height: 2),
-              Text(
-                'الرفض لا يؤثر على علاجك',
-                textAlign: TextAlign.right,
-                textDirection: TextDirection.rtl,
-                style: TextStyle(
-                  fontFamily: 'Mulish',
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.darkText3,
+                SizedBox(height: 2),
+                Text(
+                  'الرفض لا يؤثر على علاجك',
+                  textAlign: TextAlign.right,
+                  textDirection: TextDirection.rtl,
+                  style: TextStyle(
+                    fontFamily: 'Mulish',
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textSecondary,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),

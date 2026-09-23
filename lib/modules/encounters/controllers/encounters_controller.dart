@@ -27,7 +27,15 @@ class EncountersController extends GetxController {
   final isLoadingDetails = false.obs;
   final errorMessage = RxnString();
 
+  bool _detailsLoadingDialogOpen = false;
+
   PatientModel? get patient => selectedPatient.selected.value;
+
+  @override
+  void onClose() {
+    _dismissDetailsLoadingDialog();
+    super.onClose();
+  }
 
   @override
   void onInit() {
@@ -134,35 +142,13 @@ class EncountersController extends GetxController {
     }
 
     isLoadingDetails.value = true;
-    Get.dialog(
-      const Center(
-        child: Card(
-          child: Padding(
-            padding: EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CircularProgressIndicator(),
-                SizedBox(height: 16),
-                Text(
-                  'Loading encounter details…',
-                  style: TextStyle(
-                    fontFamily: 'Mulish',
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-      barrierDismissible: false,
-    );
+    _showDetailsLoadingDialog();
 
     try {
       final details = await _repository.getEncounterById(encounter.id);
+      _dismissDetailsLoadingDialog();
+
       if (isClosed) return;
-      _closeLoadingDialog();
 
       if (details == null) {
         _showDetailsError(
@@ -174,21 +160,25 @@ class EncountersController extends GetxController {
         return;
       }
 
+      // Let the loading route finish popping before opening details.
+      await Future<void>.delayed(Duration.zero);
+      if (isClosed) return;
+
       Get.dialog(
         EncounterDetailsDialog(details: details),
         barrierDismissible: true,
       );
     } on ApiException catch (e) {
+      _dismissDetailsLoadingDialog();
       if (isClosed) return;
-      _closeLoadingDialog();
       _showDetailsError(
         title: 'Unable to load details',
         message: e.message,
         onRetry: () => viewEncounter(encounter),
       );
     } catch (_) {
+      _dismissDetailsLoadingDialog();
       if (isClosed) return;
-      _closeLoadingDialog();
       _showDetailsError(
         title: 'Unable to load details',
         message:
@@ -196,11 +186,53 @@ class EncountersController extends GetxController {
         onRetry: () => viewEncounter(encounter),
       );
     } finally {
+      _dismissDetailsLoadingDialog();
       if (!isClosed) isLoadingDetails.value = false;
     }
   }
 
-  void _closeLoadingDialog() {
+  void _showDetailsLoadingDialog() {
+    if (_detailsLoadingDialogOpen) return;
+    _detailsLoadingDialogOpen = true;
+    Get.dialog(
+      PopScope(
+        canPop: false,
+        child: const Center(
+          child: Card(
+            child: Padding(
+              padding: EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text(
+                    'Loading encounter details…',
+                    style: TextStyle(
+                      fontFamily: 'Mulish',
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+      barrierDismissible: false,
+    );
+  }
+
+  void _dismissDetailsLoadingDialog() {
+    if (!_detailsLoadingDialogOpen) return;
+    _detailsLoadingDialogOpen = false;
+
+    final navigator = Get.key.currentState;
+    if (navigator != null && navigator.canPop()) {
+      navigator.pop();
+      return;
+    }
+
     if (Get.isDialogOpen ?? false) {
       Get.back();
     }

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../../app/routes/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/consent_access.dart';
 import '../../../data/models/patient_model.dart';
 import '../../../data/repositories/patient_repository.dart';
 import '../../consent/controllers/consent_desktop_controller.dart';
@@ -235,6 +236,12 @@ class PatientListController extends GetxController {
 
   Future<void> continuePatient(PatientModel patient) async {
     await selectPatient(patient);
+    if (!ConsentAccess.guardNavigation(
+      AppRoutes.uploadDocuments,
+      patientId: patient.id,
+    )) {
+      return;
+    }
     Get.toNamed(
       AppRoutes.uploadDocuments,
       arguments: patient,

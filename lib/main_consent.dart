@@ -8,6 +8,7 @@ import 'core/services/firebase_service.dart';
 import 'core/services/fcm_service.dart';
 import 'core/storage/storage_service.dart';
 import 'core/theme/app_colors.dart';
+import 'core/theme/app_theme.dart';
 import 'data/repositories/consent_repository.dart';
 import 'firebase_options.dart';
 import 'modules/consent/bindings/consent_binding.dart';
@@ -44,19 +45,8 @@ class ConsentMobileApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'AGenomics Consent',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: AppColors.night,
-        fontFamily: 'Mulish',
-        colorScheme: const ColorScheme.dark(
-          primary: AppColors.brand400,
-          surface: AppColors.panel,
-        ),
-      ),
-      home: authReady
-          ? null
-          : const _FirebaseAuthSetupScreen(),
+      theme: AppTheme.light,
+      home: authReady ? null : const _FirebaseAuthSetupScreen(),
       initialRoute: authReady ? AppRoutes.consentInbox : null,
       getPages: AppPages.pages,
       initialBinding: authReady ? ConsentInboxBinding() : null,
@@ -73,7 +63,7 @@ class _FirebaseAuthSetupScreen extends StatelessWidget {
     final detail = AppFirebaseBootstrap.lastAuthError ?? 'Unknown error';
 
     return Scaffold(
-      backgroundColor: AppColors.night,
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(28),
@@ -86,7 +76,7 @@ class _FirebaseAuthSetupScreen extends StatelessWidget {
                   fontFamily: 'Mulish',
                   fontSize: 22,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.darkInk,
+                  color: AppColors.ink,
                 ),
               ),
               const SizedBox(height: 12),
@@ -95,7 +85,7 @@ class _FirebaseAuthSetupScreen extends StatelessWidget {
                 style: const TextStyle(
                   fontFamily: 'Mulish',
                   fontSize: 13,
-                  color: AppColors.darkText3,
+                  color: AppColors.textSecondary,
                 ),
               ),
               const SizedBox(height: 24),
@@ -105,7 +95,7 @@ class _FirebaseAuthSetupScreen extends StatelessWidget {
                   fontFamily: 'Mulish',
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.brand400,
+                  color: AppColors.primary,
                 ),
               ),
               const SizedBox(height: 12),
@@ -118,7 +108,7 @@ class _FirebaseAuthSetupScreen extends StatelessWidget {
                   fontFamily: 'Mulish',
                   fontSize: 14,
                   height: 1.55,
-                  color: AppColors.darkText2,
+                  color: AppColors.textSecondary,
                 ),
               ),
               const Spacer(),
@@ -136,14 +126,17 @@ class _FirebaseAuthSetupScreen extends StatelessWidget {
                         AppFirebaseBootstrap.lastAuthError ??
                             'Enable Anonymous auth, then retry.',
                         snackPosition: SnackPosition.BOTTOM,
-                        backgroundColor: AppColors.panel,
-                        colorText: AppColors.darkInk,
+                        backgroundColor: AppColors.errorBg,
+                        colorText: AppColors.error,
                       );
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.brand400,
-                    foregroundColor: AppColors.onTeal,
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppColors.radius),
+                    ),
                   ),
                   child: const Text(
                     'Retry sign-in',

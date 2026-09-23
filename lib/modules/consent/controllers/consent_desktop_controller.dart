@@ -7,19 +7,39 @@ import '../../../core/theme/app_colors.dart';
 import '../../../data/models/consent_request_model.dart';
 import '../../../data/models/patient_model.dart';
 import '../../../data/repositories/consent_repository.dart';
+import '../../shell/controllers/selected_patient_controller.dart';
 
 /// Desktop helper — create consent requests and mirror live status updates.
 class ConsentDesktopController extends GetxController {
-  ConsentDesktopController({ConsentRepository? repository})
-      : _repository = repository ?? Get.find<ConsentRepository>();
+  ConsentDesktopController({
+    ConsentRepository? repository,
+    SelectedPatientController? selectedPatient,
+  })  : _repository = repository ?? Get.find<ConsentRepository>(),
+        selectedPatient =
+            selectedPatient ?? Get.find<SelectedPatientController>();
 
   final ConsentRepository _repository;
+  final SelectedPatientController selectedPatient;
 
   /// patientId → latest consent request
   final latestByPatient = <String, ConsentRequestModel>{}.obs;
   final creatingFor = <String>{}.obs;
 
   final Map<String, StreamSubscription<ConsentRequestModel?>> _subs = {};
+
+  @override
+  void onInit() {
+    super.onInit();
+    ever(selectedPatient.selected, (PatientModel? patient) {
+      if (patient != null && patient.id.isNotEmpty) {
+        _watchPatient(patient.id);
+      }
+    });
+    final current = selectedPatient.selected.value;
+    if (current != null && current.id.isNotEmpty) {
+      _watchPatient(current.id);
+    }
+  }
 
   Future<void> requestConsent(PatientModel patient) async {
     if (creatingFor.contains(patient.id)) return;
@@ -89,6 +109,11 @@ class ConsentDesktopController extends GetxController {
 
   ConsentRequestModel? statusFor(String patientId) =>
       latestByPatient[patientId];
+
+  bool hasApprovedConsent(String patientId) {
+    if (patientId.isEmpty) return false;
+    return latestByPatient[patientId]?.isApproved ?? false;
+  }
 
   bool isCreating(String patientId) => creatingFor.contains(patientId);
 

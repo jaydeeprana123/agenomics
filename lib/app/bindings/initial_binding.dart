@@ -25,16 +25,16 @@ class InitialBinding extends Bindings {
     Get.put<ReportPdfRepository>(ReportPdfRepository(), permanent: true);
     Get.put<GenomikiRepository>(GenomikiRepository(), permanent: true);
     Get.put<ConsentRepository>(ConsentRepository(), permanent: true);
-    Get.put<ConsentDesktopController>(
-      ConsentDesktopController(),
-      permanent: true,
-    );
     Get.put<SelectedPatientController>(
       SelectedPatientController(),
       permanent: true,
     );
     Get.put<SelectedEncounterController>(
       SelectedEncounterController(),
+      permanent: true,
+    );
+    Get.put<ConsentDesktopController>(
+      ConsentDesktopController(),
       permanent: true,
     );
   }

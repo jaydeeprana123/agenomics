@@ -3,8 +3,10 @@ import 'package:get/get.dart';
 
 import '../../../app/routes/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/consent_access.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../core/widgets/app_logo_mark.dart';
+import '../../../core/widgets/consent_required_gate.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../patient_list/controllers/patient_list_controller.dart';
 import '../controllers/selected_encounter_controller.dart';
@@ -27,6 +29,10 @@ class AppShell extends StatelessWidget {
     shell.setTitle(title);
 
     final showSidebar = Responsive.showSidebar(context);
+    final route = Get.currentRoute;
+    final gatedChild = ConsentAccess.routeRequiresConsent(route)
+        ? ConsentRequiredGate(child: child)
+        : child;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -51,7 +57,7 @@ class AppShell extends StatelessWidget {
                 Expanded(
                   child: ColoredBox(
                     color: AppColors.background,
-                    child: child,
+                    child: gatedChild,
                   ),
                 ),
               ],
@@ -447,6 +453,12 @@ class _SidebarContent extends StatelessWidget {
                       return;
                     }
                     if (Get.currentRoute == AppRoutes.physicianHis) return;
+                    if (!ConsentAccess.guardNavigation(
+                      AppRoutes.physicianHis,
+                      patientId: selected.id,
+                    )) {
+                      return;
+                    }
                     Get.toNamed(AppRoutes.physicianHis);
                   },
                 ),
@@ -472,6 +484,12 @@ class _SidebarContent extends StatelessWidget {
                       return;
                     }
                     if (Get.currentRoute == AppRoutes.genomicsAnalysis) return;
+                    if (!ConsentAccess.guardNavigation(
+                      AppRoutes.genomicsAnalysis,
+                      patientId: selected.id,
+                    )) {
+                      return;
+                    }
                     Get.toNamed(AppRoutes.genomicsAnalysis);
                   },
                 ),
@@ -485,6 +503,9 @@ class _SidebarContent extends StatelessWidget {
                       Navigator.of(context).pop();
                     }
                     if (Get.currentRoute == AppRoutes.medicines) return;
+                    if (!ConsentAccess.guardNavigation(AppRoutes.medicines)) {
+                      return;
+                    }
                     Get.toNamed(AppRoutes.medicines);
                   },
                 ),
@@ -498,6 +519,9 @@ class _SidebarContent extends StatelessWidget {
                       Navigator.of(context).pop();
                     }
                     if (Get.currentRoute == AppRoutes.vcfFileRun) return;
+                    if (!ConsentAccess.guardNavigation(AppRoutes.vcfFileRun)) {
+                      return;
+                    }
                     Get.toNamed(AppRoutes.vcfFileRun);
                   },
                 ),
@@ -523,12 +547,27 @@ class _SidebarContent extends StatelessWidget {
                     if (Scaffold.maybeOf(context)?.isDrawerOpen ?? false) {
                       Navigator.of(context).pop();
                     }
-                    Get.snackbar(
-                      'Select a patient',
-                      'Use Continue on a patient row to upload documents.',
-                      snackPosition: SnackPosition.BOTTOM,
-                      backgroundColor: AppColors.surface,
-                      colorText: AppColors.text,
+                    final selected =
+                        Get.find<SelectedPatientController>().selected.value;
+                    if (selected == null || selected.id.isEmpty) {
+                      Get.snackbar(
+                        'Select a patient',
+                        'Use Continue on a patient row to upload documents.',
+                        snackPosition: SnackPosition.BOTTOM,
+                        backgroundColor: AppColors.surface,
+                        colorText: AppColors.text,
+                      );
+                      return;
+                    }
+                    if (!ConsentAccess.guardNavigation(
+                      AppRoutes.uploadDocuments,
+                      patientId: selected.id,
+                    )) {
+                      return;
+                    }
+                    Get.toNamed(
+                      AppRoutes.uploadDocuments,
+                      arguments: selected,
                     );
                   },
                 ),
